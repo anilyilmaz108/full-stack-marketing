@@ -1,8 +1,19 @@
-const PORT = 8000;
+const PORT =  process.env.APP_PORT || 8000;
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const app = express();
+const db = require('./db/db');
+
+// Redis
+const { createClient } = require('redis')
+const client = createClient({})
+
+// Env Dosyası içinde önemli bilgileri tut
+require('dotenv').config({
+    override: true
+})
+
 
 const data = [];
 const bist100Data = [];
@@ -83,7 +94,7 @@ app.get('/bist100/:share', (req,res) => {
     const tavan = $(`li[id=h_td_tavan_id_${share}]`, html).text(); 
     const hacimLot = $(`li[id=h_td_hacimlot_id_${share}]`, html).text(); 
     const hacim = $(`li[id=h_td_hacimtl_id_${share}]`, html).text(); 
-    const saat = $(`li[id=h_td_saat_id_${share}]`, html).text(); 
+    const saat = $(`li[id=h_td_saat_id_${share}]`, html).text().trim().toString(); 
 
     data.push({
         hisse,
@@ -207,7 +218,19 @@ app.get('/news', (req,res) => {
     }).catch((err) => console.log(err));
 });
 
+// Redis'e Bağlanma
+const connectRedis = async() => {
+    await client.connect()
+    console.log('Redise Bağlanıldı.')
+}
 
-app.listen(PORT, () => {
-    console.log('Server running...');
-});
+
+connectRedis().then(() => {
+    app.listen(PORT, async() => {
+        await db.connect()
+        // db.createTables()
+        console.log('Server running...');
+        // Üretilen Token
+        // console.log(constants.token)
+    })
+})
