@@ -133,6 +133,166 @@ router.post("/register", validateUser.validateUser(), async (req, res) => {
   }
 });
 
+// User Oluşturma + Redis
+router.post("/createUser", async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
+    const userData = await User.create(
+      {
+        email,
+        password,
+        role,
+      },
+      { logging: true }
+    );
+    const jsonData = JSON.stringify(userData);
+    const redisKey = JSON.parse(jsonData);
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(userData);
+    // Redis SET
+    client
+      .set("User" + redisKey["id"], JSON.stringify(userData), { EX: ttl5sn })
+      .then(async (v) => {
+        console.log("SET ETME İŞLEMİ", v);
+      });
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti" });
+    console.log("err", error);
+  }
+});
+
+// Bütün Userları Listeleme + Redis
+router.get("/getAllUser", async (req, res) => {
+  let keys = [];
+  await client.keys("*").then(async (r) => {
+    keys = r;
+    console.log("KEY LIST", keys);
+  });
+  if (keys.length > 0) {
+    console.log("isExist", keys.length);
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    await client.mGet(keys).then(async (reply) => {
+      let str = "[" + reply + "]";
+      res.status(200).json(JSON.parse(str));
+    });
+  } else {
+    console.log("NotExist", keys);
+    try {
+      // attributes kullanarak filtreleme yapılabilir
+      // kullanılmazsa tüm veriler gelir
+      const response = await User.findAll({
+        // attributes: ['user_id', 'testMail','12345678']
+      });
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+      );
+      res.status(200).json(response);
+      // Redis MSET
+      const records = {};
+      response.forEach((element) => {
+        records["User" + element.email + element.password] =
+          JSON.stringify(element);
+      });
+      client.mSet(records, { EX: ttl5sn }).then(async (v) => {
+        console.log("SET ETME İŞLEMİ", v);
+      });
+    } catch (error) {
+      logger.logError(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+      );
+      res.status(500).json({ message: "Hata Gerçekleşti" });
+    }
+  }
+});
+
+// ID'ye Göre User Çekme
+router.get("/getUserById/:userId", async (req, res) => {
+  const { userId } = req.params;
+  client.get("User" + userId).then(async (r) => {
+    if (r) {
+      console.log("isExist", r);
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+      );
+      res.status(200).json(JSON.parse(r));
+    } else {
+      console.log("notExist", r);
+      try {
+        const findedData = await User.findByPk(userId);
+        logger.logInfo(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+        );
+        res.status(200).json(findedData);
+
+        // Eğer Redisde Yoksa Redise Eklesin. Bir Sonraki Aramalarda DB Çağırılmasın
+        client
+          .set("User" + userId, JSON.stringify(findedData), { EX: ttl5sn })
+          .then(async (v) => {
+            console.log("SET ETME İŞLEMİ", v);
+          });
+      } catch (error) {
+        console.log("err", error);
+        logger.logError(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+        );
+        res.status(500).json({ message: "Hata Gerçekleşti " });
+      }
+    }
+  });
+});
+
+// ID'ye Göre User Silme
+router.delete("/deleteUser/:userId", async (req, res) => {
+  const { userId } = req.params;
+  client.del("User" + userId).then(async (r) => {
+    if (r) {
+      console.log("isExist", r);
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+      );
+      //res.status(200).json(JSON.parse(r))
+      try {
+        const user = await User.findByPk(userId);
+        const removedData = await user.destroy();
+        console.log("removedData", removedData);
+        logger.logInfo(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+        );
+        res.status(200).json(removedData);
+      } catch (error) {
+        logger.logError(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+        );
+        res.status(500).json({ message: "Hata Gerçekleşti" });
+        console.log("err", error);
+      }
+    } else {
+      try {
+        const user = await User.findByPk(userId);
+        const removedData = await user.destroy();
+        console.log("removedData", removedData);
+        logger.logInfo(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+        );
+        res.status(200).json(removedData);
+      } catch (error) {
+        logger.logError(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+        );
+        res.status(500).json({ message: "Hata Gerçekleşti" });
+        console.log("err", error);
+      }
+    }
+  });
+});
+
 // BIST100 Verileri
 router.get("/bist100", (req, res) => {
   bist100Data.splice(0, bist100Data.length);
