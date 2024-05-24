@@ -31,6 +31,10 @@ const { validationResult } = require("express-validator");
 
 // İnit Model
 const User = require("./models/user-model");
+const Bist = require("./models/bist-model");
+const Usd = require("./models/usd-model");
+const Euro = require("./models/euro-model");
+const Gold = require("./models/gold-model");
 
 // Livedata Listeleri
 const data = [];
@@ -396,12 +400,14 @@ router.get("/bist100/:share", (req, res) => {
     .catch((err) => console.log(err));
 });
 
+// Client tarafında tarih kontrolü yapıp, eğer tarih uyuyorsa bu kısım çalıştır gibi bir şey yapılabilir.
+// Saat 19:00:00'da eğer istek gelirse DB'ye atılır.
 // Piyasalar (Bist-Dolar-Euro-Altın)
-router.get("/market", (req, res) => {
+router.get("/market", async (req, res) => {
   market.splice(0, market.length);
   axios
     .get("https://bigpara.hurriyet.com.tr/borsa/hisse-senetleri/")
-    .then((response) => {
+    .then(async (response) => {
       const html = response.data;
       const $ = cheerio.load(html);
       const marketArray = $("div[class=chartItem]", html)
@@ -471,7 +477,54 @@ router.get("/market", (req, res) => {
         acilisaltin,
       });
 
-      res.json(market);
+      res.status(200).json(market);
+      var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
+
+      if (datetime.getHours() == 19 && datetime.getMinutes() == 0 && datetime.getSeconds() == 0) {
+        console.log('DB Market Kayıt')
+        try {
+          const bistData = await Bist.create(
+            {
+              bist,
+              degisimBist,
+              tarihBist,
+            },
+            { logging: true }
+          );
+          const usdData = await Usd.create(
+            {
+              dolar,
+              degisimdolar,
+              tarihdolar,
+            },
+            { logging: true }
+          );
+          const euroData = await Euro.create(
+            {
+              euro,
+              degisimeuro,
+              tariheuro,
+            },
+            { logging: true }
+          );
+          const altintData = await Gold.create(
+            {
+              altin,
+              degisimaltin,
+              tarihaltin,
+            },
+            { logging: true }
+          );
+          logger.logInfo(
+            `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+          );
+        } catch (error) {
+          logger.logError(
+            `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+          );
+          console.log("err", error);
+        }
+      }
     })
     .catch((err) => console.log(err));
 });
