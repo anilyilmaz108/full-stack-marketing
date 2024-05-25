@@ -36,6 +36,7 @@ const Usd = require("./models/usd-model");
 const Euro = require("./models/euro-model");
 const Gold = require("./models/gold-model");
 const Share = require("./models/share-model");
+const Follow = require("./models/follow-model");
 
 // Livedata Listeleri
 const data = [];
@@ -298,6 +299,127 @@ router.delete("/deleteUser/:userId", async (req, res) => {
   });
 });
 
+// Userın takip ettiği hisseler POST
+router.post("/createFollow", async (req, res) => {
+  const { user, shareSymbol } = req.body;
+  try {
+    const followData = await Follow.create(
+      { user: user, hisse: shareSymbol },
+      { logging: true }
+    );
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(followData);
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti" });
+    console.log("err", error);
+  }
+});
+
+// Userın takip ettiği hisseleri silme DELETE
+router.delete("/deleteFollow/:userId/:shareSymbol", async (req, res) => {
+  const { userId, shareSymbol } = req.params;
+  try {
+    await Follow.destroy({ where: { user: userId, hisse: shareSymbol } });
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json({ message: "Silme İşlemi Başarılı" });
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti" });
+    console.log("err", error);
+  }
+});
+
+// Userın takip listesi GET
+router.get("/getFollow/:userId", async (req, res) => {
+  var jsonAllData = [];
+  const { userId } = req.params;
+  try {
+    const findedData = await Follow.findAll({ where: { user: userId } });
+    for (let index = 0; index < findedData.length; index++) {
+      const element = findedData[index];
+      const follows = await Share.findAll({ where: { hisse: element.hisse } });
+      var x = {
+        id: follows[0].id,
+        hisse: follows[0].hisse,
+        sonFiyat: follows[0].sonFiyat,
+        satisFiyat: follows[0].sonFiyat,
+        fiyat: follows[0].fiyat,
+        dusukFiyat: follows[0].dusukFiyat,
+        ortalama: follows[0].ortalama,
+        yuzde: follows[0].yuzde,
+        dunKapanis: follows[0].dunKapanis,
+        fark: follows[0].fark,
+        taban: follows[0].taban,
+        tavan: follows[0].tavan,
+        hacimLot: follows[0].hacimLot,
+        hacim: follows[0].hacim,
+        saat: follows[0].saat,
+      };
+      jsonAllData.push(x);
+    }
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(jsonAllData);
+  } catch (error) {
+    console.log("err", error);
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti " });
+  }
+});
+
+// Userın takip ettiği tek bir hiise GET
+router.get("/getFollowByShare/:userId/:shareSymbol", async (req, res) => {
+  var jsonAllData = [];
+  const { userId, shareSymbol } = req.params;
+  try {
+    const findedData = await Follow.findAll({ where: { user: userId, hisse: shareSymbol } });
+    for (let index = 0; index < findedData.length; index++) {
+      const element = findedData[index];
+      const follows = await Share.findAll({ where: { hisse: element.hisse } });
+      var x = {
+        id: follows[0].id,
+        hisse: follows[0].hisse,
+        sonFiyat: follows[0].sonFiyat,
+        satisFiyat: follows[0].sonFiyat,
+        fiyat: follows[0].fiyat,
+        dusukFiyat: follows[0].dusukFiyat,
+        ortalama: follows[0].ortalama,
+        yuzde: follows[0].yuzde,
+        dunKapanis: follows[0].dunKapanis,
+        fark: follows[0].fark,
+        taban: follows[0].taban,
+        tavan: follows[0].tavan,
+        hacimLot: follows[0].hacimLot,
+        hacim: follows[0].hacim,
+        saat: follows[0].saat,
+      };
+      jsonAllData.push(x);
+    }
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(jsonAllData);
+  } catch (error) {
+    console.log("err", error);
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti " });
+  }
+});
+
 // BIST100 Verileri
 router.get("/bist100", async (req, res) => {
   bist100Data.splice(0, bist100Data.length);
@@ -349,7 +471,7 @@ router.get("/bist100", async (req, res) => {
             var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
             console.log(datetime);
             // Veri Tabanına Günde 1 kez kayıt edilsin.
-            if (datetime.getHours() == 16 && datetime.getMinutes() == 30) {
+            if (datetime.getHours() == 19 && datetime.getMinutes() == 0) {
               try {
                 const shareData = await Share.create(
                   {
@@ -516,13 +638,9 @@ router.get("/market", async (req, res) => {
 
       res.status(200).json(market);
       var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
-
+      console.log(datetime);
       // Veri Tabanına Günde 1 kez kayıt edilsin.
-      if (
-        datetime.getHours() == 19 &&
-        datetime.getMinutes() == 0 &&
-        datetime.getSeconds() == 0
-      ) {
+      if (datetime.getHours() == 19 && datetime.getMinutes() == 0) {
         console.log("DB Market Kayıt");
         try {
           const bistData = await Bist.create(
@@ -614,3 +732,6 @@ connectRedis().then(() => {
     // console.log(constants.token)
   });
 });
+
+// Client tarafında grafik ile veriler gösterileceği için Server tarafında Update yerine Create Yapılmalı
+// Grafikte spesifik bir tarihe gitmek için Client tarafında sorgu yapılabilir.

@@ -32,8 +32,8 @@ db.createTables = async() => {
 
     User.hasMany(Follow, { foreignKey: 'user_id', onDelete: 'CASCADE', hooks: true })
     Share.hasMany(Follow, { foreignKey: 'share_id', onDelete: 'CASCADE', hooks: true })
-    Follow.belongsTo(User, { onDelete: 'CASCADE', hooks: true })
-    Follow.belongsTo(Share, { onDelete: 'CASCADE', hooks: true })
+    //User.belongsToMany(Share, { through: Follow, foreignKey: 'user_id',  onDelete: 'CASCADE', hooks: true })
+    //Share.belongsToMany(User, { through: Follow, foreignKey: 'hisse',  onDelete: 'CASCADE', hooks: true })
 
     sequelize.sync({ force: true })
 }
