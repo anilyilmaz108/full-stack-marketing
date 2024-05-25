@@ -37,6 +37,7 @@ const Euro = require("./models/euro-model");
 const Gold = require("./models/gold-model");
 const Share = require("./models/share-model");
 const Follow = require("./models/follow-model");
+const Portfolio = require("./models/portfolio-model");
 
 // Livedata Listeleri
 const data = [];
@@ -384,7 +385,9 @@ router.get("/getFollowByShare/:userId/:shareSymbol", async (req, res) => {
   var jsonAllData = [];
   const { userId, shareSymbol } = req.params;
   try {
-    const findedData = await Follow.findAll({ where: { user: userId, hisse: shareSymbol } });
+    const findedData = await Follow.findAll({
+      where: { user: userId, hisse: shareSymbol },
+    });
     for (let index = 0; index < findedData.length; index++) {
       const element = findedData[index];
       const follows = await Share.findAll({ where: { hisse: element.hisse } });
@@ -417,6 +420,161 @@ router.get("/getFollowByShare/:userId/:shareSymbol", async (req, res) => {
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
     );
     res.status(500).json({ message: "Hata Gerçekleşti " });
+  }
+});
+
+// User portfolyo oluşturma
+router.post("/createPortfolio", async (req, res) => {
+  const { user, euro, dolar, altin, hisse, lira } = req.body;
+  try {
+    const portfolioData = await Portfolio.create(
+      {
+        user: user,
+        euro: euro,
+        dolar: dolar,
+        altin: altin,
+        hisse: hisse,
+        lira: lira,
+      },
+      { logging: true }
+    );
+    const jsonData = JSON.stringify(portfolioData);
+    const redisKey = JSON.parse(jsonData);
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(portfolioData);
+    // Redis SET
+    client
+      .set("Portfolio" + redisKey["user"], JSON.stringify(portfolioData), {
+        EX: ttl5sn,
+      })
+      .then(async (v) => {
+        console.log("SET ETME İŞLEMİ", v);
+      });
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti" });
+    console.log("err", error);
+  }
+});
+
+// User portfolio verilerini çekme
+router.get("/getPortfolio/:user", async (req, res) => {
+  const { user } = req.params;
+  client.get("Portfolio" + user).then(async (r) => {
+    if (r) {
+      console.log("isExist", r);
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+      );
+      res.status(200).json(JSON.parse(r));
+    } else {
+      console.log("notExist", r);
+      try {
+        const findedData = await Portfolio.findOne({ where: { user: user } });
+        logger.logInfo(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+        );
+        res.status(200).json(findedData);
+
+        // Eğer Redisde Yoksa Redise Eklesin. Bir Sonraki Aramalarda DB Çağırılmasın
+        client
+          .set("Portfolio" + userId, JSON.stringify(findedData), { EX: ttl5sn })
+          .then(async (v) => {
+            console.log("SET ETME İŞLEMİ", v);
+          });
+      } catch (error) {
+        console.log("err", error);
+        logger.logError(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+        );
+        res.status(500).json({ message: "Hata Gerçekleşti " });
+      }
+    }
+  });
+});
+
+// User portfolio verilerini silme
+router.delete("/deletePortfolio/:user", async (req, res) => {
+  const { user } = req.params;
+  client.del("Portfolio" + user).then(async (r) => {
+    if (r) {
+      console.log("isExist", r);
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+      );
+      //res.status(200).json(JSON.parse(r))
+      try {
+        const portfolio = await Portfolio.findOne({ where: { user: user } });
+        const removedData = await portfolio.destroy();
+        console.log("removedData", removedData);
+        logger.logInfo(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+        );
+        res.status(200).json(removedData);
+      } catch (error) {
+        logger.logError(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+        );
+        res.status(500).json({ message: "Hata Gerçekleşti" });
+        console.log("err", error);
+      }
+    } else {
+      try {
+        const portfolio = await Portfolio.findOne({ where: { user: user } });
+        const removedData = await portfolio.destroy();
+        console.log("removedData", removedData);
+        logger.logInfo(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+        );
+        res.status(200).json(removedData);
+      } catch (error) {
+        logger.logError(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+        );
+        res.status(500).json({ message: "Hata Gerçekleşti" });
+        console.log("err", error);
+      }
+    }
+  });
+});
+
+// User portfolio verilerini güncelleme
+router.put("/updatePortfolio/:user", async (req, res) => {
+  const { user } = req.params;
+  const { euro, dolar, altin, hisse, lira } = req.body;
+  try {
+    const findedData = await Portfolio.findOne({ where: { user: user } });
+    const up = await Portfolio.update(
+      {
+        euro: euro,
+        dolar: dolar,
+        altin: altin,
+        hisse: hisse,
+        lira: lira,
+      },
+      { where: { user: user } },
+      { logging: true }
+    );
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(up);
+    // Redis SET
+    client
+      .set("Portfolio" + user, JSON.stringify(findedData), { EX: ttl5sn })
+      .then(async (v) => {
+        console.log("SET ETME İŞLEMİ", v);
+      });
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti " });
+    console.log("err", error);
   }
 });
 

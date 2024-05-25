@@ -29,6 +29,7 @@ db.createTables = async() => {
     const Euro = require('../models/euro-model')
     const Usd = require('../models/usd-model')
     const Gold = require('../models/gold-model')
+    const Portfolio = require('../models/portfolio-model')
 
     User.hasMany(Follow, { foreignKey: 'user_id', onDelete: 'CASCADE', hooks: true })
     Share.hasMany(Follow, { foreignKey: 'share_id', onDelete: 'CASCADE', hooks: true })
