@@ -35,6 +35,7 @@ const Bist = require("./models/bist-model");
 const Usd = require("./models/usd-model");
 const Euro = require("./models/euro-model");
 const Gold = require("./models/gold-model");
+const Share = require("./models/share-model");
 
 // Livedata Listeleri
 const data = [];
@@ -298,14 +299,14 @@ router.delete("/deleteUser/:userId", async (req, res) => {
 });
 
 // BIST100 Verileri
-router.get("/bist100", (req, res) => {
+router.get("/bist100", async (req, res) => {
   bist100Data.splice(0, bist100Data.length);
   axios
     .get("https://bigpara.hurriyet.com.tr/borsa/canli-borsa/bist100/")
-    .then((response) => {
+    .then(async (response) => {
       const html = response.data;
       const $ = cheerio.load(html);
-      $("a", html).each(function () {
+      $("a", html).each(async function () {
         if ($(this).attr("href").includes("/borsa/hisse-fiyatlari/")) {
           const hisse = $(this).text();
           if (!hisse.includes("Hisse") && !hisse.includes("HİSSE")) {
@@ -325,7 +326,10 @@ router.get("/bist100", (req, res) => {
             const tavan = $(`li[id=h_td_tavan_id_${hisse}]`, html).text();
             const hacimLot = $(`li[id=h_td_hacimlot_id_${hisse}]`, html).text();
             const hacim = $(`li[id=h_td_hacimtl_id_${hisse}]`, html).text();
-            const saat = $(`li[id=h_td_saat_id_${hisse}]`, html).text();
+            const saat = $(`li[id=h_td_saat_id_${hisse}]`, html)
+              .text()
+              .trim()
+              .toString();
             bist100Data.push({
               hisseSembolu,
               sonFiyat,
@@ -342,16 +346,49 @@ router.get("/bist100", (req, res) => {
               hacim,
               saat,
             });
+            var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
+            console.log(datetime);
+            // Veri Tabanına Günde 1 kez kayıt edilsin.
+            if (datetime.getHours() == 16 && datetime.getMinutes() == 30) {
+              try {
+                const shareData = await Share.create(
+                  {
+                    hisse,
+                    sonFiyat,
+                    satisFiyat,
+                    fiyat,
+                    dusukFiyat,
+                    ortalama,
+                    yuzde,
+                    dunKapanis,
+                    fark,
+                    taban,
+                    tavan,
+                    hacimLot,
+                    hacim,
+                    saat,
+                  },
+                  { logging: true }
+                );
+                logger.logInfo(
+                  `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+                );
+              } catch (error) {
+                logger.logError(
+                  `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+                );
+                console.log("err", error);
+              }
+            }
           }
         }
       });
-
-      res.json(bist100Data);
+      res.status(200).json(bist100Data);
     })
     .catch((err) => console.log(err));
 });
 
-// Hisse Arama
+// Hisse Arama => Arama işleminde kullanılacağı için DB'ye eklemeye gerek yok.
 router.get("/bist100/:share", (req, res) => {
   data.splice(0, data.length);
   const { share } = req.params;
@@ -480,8 +517,13 @@ router.get("/market", async (req, res) => {
       res.status(200).json(market);
       var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
 
-      if (datetime.getHours() == 19 && datetime.getMinutes() == 0 && datetime.getSeconds() == 0) {
-        console.log('DB Market Kayıt')
+      // Veri Tabanına Günde 1 kez kayıt edilsin.
+      if (
+        datetime.getHours() == 19 &&
+        datetime.getMinutes() == 0 &&
+        datetime.getSeconds() == 0
+      ) {
+        console.log("DB Market Kayıt");
         try {
           const bistData = await Bist.create(
             {
@@ -529,7 +571,7 @@ router.get("/market", async (req, res) => {
     .catch((err) => console.log(err));
 });
 
-// Ekonomi Haberleri
+// Ekonomi Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
 router.get("/news", (req, res) => {
   news.splice(0, news.length);
   axios
