@@ -9,6 +9,12 @@ const router = express.Router();
 app.use(express.json());
 app.use(router);
 
+//Swagger Integration => node swagger.js
+var swaggerUi = require("swagger-ui-express");
+
+swaggerDocument = require("./swagger-output.json");
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // Redis
 const { createClient } = require("redis");
 const client = createClient({});
@@ -95,6 +101,13 @@ router.post("/login", validateUser.validateUser(), async (req, res) => {
       );
     }
   });
+  // #swagger.summary = 'Login İşlemi'
+  // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
+  /*  #swagger.parameters['Auth'] = {
+        in: 'body',
+        description: 'String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır.',
+      } */
+  // #swagger.tags = ['Auth']
 });
 
 // Create User => GetUserByID
@@ -138,6 +151,13 @@ router.post("/register", validateUser.validateUser(), async (req, res) => {
     );
     res.status(400).json(errors.array({ onlyFirstError: false }));
   }
+  // #swagger.summary = 'Register İşlemi'
+  // #swagger.description = 'Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir.'
+  /*  #swagger.parameters['Auth'] = {
+        in: 'body',
+        description: 'String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır.',
+      } */
+  // #swagger.tags = ['Auth']
 });
 
 // User Oluşturma + Redis
@@ -171,6 +191,13 @@ router.post("/createUser", async (req, res) => {
     res.status(500).json({ message: "Hata Gerçekleşti" });
     console.log("err", error);
   }
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'User Oluşturma'
+  // #swagger.description = 'Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir. Register işlemi ile farkı role verisi default olarak user gelir fakat bu işlemde rol de verilir. '
+  /*  #swagger.parameters['Auth'] = {
+        in: 'body',
+        description: 'String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır.',
+      } */
 });
 
 // Bütün Userları Listeleme + Redis
@@ -217,6 +244,9 @@ router.get("/getAllUser", async (req, res) => {
       res.status(500).json({ message: "Hata Gerçekleşti" });
     }
   }
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Tüm User Verilerini Okuma'
+  // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
 });
 
 // ID'ye Göre User Çekme
@@ -253,6 +283,13 @@ router.get("/getUserById/:userId", async (req, res) => {
       }
     }
   });
+  // #swagger.summary = 'User Verilerini IDye Göre Okuma'
+  // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
+  /*  #swagger.parameters['User'] = {
+        in: 'path',
+        description: 'User IDye Göre İşlem Yapılır.',
+      } */
+  // #swagger.tags = ['User']
 });
 
 // ID'ye Göre User Silme
@@ -298,6 +335,13 @@ router.delete("/deleteUser/:userId", async (req, res) => {
       }
     }
   });
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'IDye Göre User Silme'
+  // #swagger.description = 'Veriler DB ve Cacheden Silinir.'
+  /*  #swagger.parameters['User'] = {
+        in: 'path',
+        description: 'User IDye Göre İşlem Yapılır.',
+      } */
 });
 
 // Userın takip ettiği hisseler POST
@@ -319,6 +363,13 @@ router.post("/createFollow", async (req, res) => {
     res.status(500).json({ message: "Hata Gerçekleşti" });
     console.log("err", error);
   }
+  // #swagger.tags = ['Follow']
+  // #swagger.summary = 'Userın Takip Listesi Oluşturma'
+  // #swagger.description = 'Veriler DBye kaydedilir.'
+  /*  #swagger.parameters['Follow'] = {
+        in: 'body',
+        description: 'Int tipinde user ile String tipinde hisse verisi kullanılmaktadır.',
+      } */
 });
 
 // Userın takip ettiği hisseleri silme DELETE
@@ -337,6 +388,13 @@ router.delete("/deleteFollow/:userId/:shareSymbol", async (req, res) => {
     res.status(500).json({ message: "Hata Gerçekleşti" });
     console.log("err", error);
   }
+  // #swagger.tags = ['Follow']
+  // #swagger.summary = 'Userın Takip Listesi Silme'
+  // #swagger.description = 'Veriler DBden silinir.'
+  /*  #swagger.parameters['Follow'] = {
+        in: 'path',
+        description: 'User ID ile hisse sembolü verisi kullanılmaktadır.',
+      } */
 });
 
 // Userın takip listesi GET
@@ -378,6 +436,13 @@ router.get("/getFollow/:userId", async (req, res) => {
     );
     res.status(500).json({ message: "Hata Gerçekleşti " });
   }
+  // #swagger.tags = ['Follow']
+  // #swagger.summary = 'Userın Tüm Takip Listesi'
+  // #swagger.description = 'Veriler DBden Okunur.'
+  /*  #swagger.parameters['Follow'] = {
+        in: 'path',
+        description: 'User ID verisi kullanılmaktadır.',
+      } */
 });
 
 // Userın takip ettiği tek bir hiise GET
@@ -421,6 +486,13 @@ router.get("/getFollowByShare/:userId/:shareSymbol", async (req, res) => {
     );
     res.status(500).json({ message: "Hata Gerçekleşti " });
   }
+  // #swagger.tags = ['Follow']
+  // #swagger.summary = 'Userın ID ve Hisseye Göre Takip Listesi'
+  // #swagger.description = 'Veriler DBden Okunur.'
+  /*  #swagger.parameters['Follow'] = {
+        in: 'path',
+        description: 'User ID ve hisse sembolü verisi kullanılmaktadır.',
+      } */
 });
 
 // User portfolyo oluşturma
@@ -459,6 +531,13 @@ router.post("/createPortfolio", async (req, res) => {
     res.status(500).json({ message: "Hata Gerçekleşti" });
     console.log("err", error);
   }
+  // #swagger.tags = ['Portfolio']
+  // #swagger.summary = 'User Portfolio Oluşturma'
+  // #swagger.description = 'Veriler DBye kaydedilir. DBye kayıt işlemi sonrası Cachede kaydedilir.'
+  /*  #swagger.parameters['Portfolio'] = {
+        in: 'body',
+        description: 'Int tipinde user verisi, String tipinde euro, dolar, altın, lira verisi ve String Array tipinde hisse verisi kullanılmaktadır.',
+      } */
 });
 
 // User portfolio verilerini çekme
@@ -495,6 +574,13 @@ router.get("/getPortfolio/:user", async (req, res) => {
       }
     }
   });
+  // #swagger.tags = ['Portfolio']
+  // #swagger.summary = 'User IDye Göre Portfolio Listesi'
+  // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
+  /*  #swagger.parameters['Portfolio'] = {
+        in: 'path',
+        description: 'User ID verisi kullanılmaktadır.',
+      } */
 });
 
 // User portfolio verilerini silme
@@ -540,6 +626,13 @@ router.delete("/deletePortfolio/:user", async (req, res) => {
       }
     }
   });
+  // #swagger.tags = ['Portfolio']
+  // #swagger.summary = 'User IDye Göre Portfolio Silme'
+  // #swagger.description = 'Veriler DBden silinir.'
+  /*  #swagger.parameters['Portfolio'] = {
+        in: 'path',
+        description: 'User ID verisi kullanılmaktadır.',
+      } */
 });
 
 // User portfolio verilerini güncelleme
@@ -576,6 +669,19 @@ router.put("/updatePortfolio/:user", async (req, res) => {
     res.status(500).json({ message: "Hata Gerçekleşti " });
     console.log("err", error);
   }
+  // #swagger.tags = ['Portfolio']
+  // #swagger.summary = 'User Portfolio Güncelleme'
+  // #swagger.description = 'Veriler DBye kaydedilir. DBye kayıt işlemi sonrası Cachede kaydedilir.'
+  /*  #swagger.parameters['Portfolio'] = [
+    {
+        in: 'path',
+        description: 'Int tipinde user verisi kullanılmaktadır.',
+      },
+         {
+        in: 'body',
+        description: 'String tipinde euro, dolar, altın, lira verisi ve String Array tipinde hisse verisi kullanılmaktadır.',
+      },
+  ] */
 });
 
 // BIST100 Verileri
@@ -666,6 +772,9 @@ router.get("/bist100", async (req, res) => {
       res.status(200).json(bist100Data);
     })
     .catch((err) => console.log(err));
+  // #swagger.tags = ['Bist']
+  // #swagger.summary = 'Günlük Bist Verileri'
+  // #swagger.description = 'Veriler DBye 19:00da kaydedilir.'
 });
 
 // Hisse Arama => Arama işleminde kullanılacağı için DB'ye eklemeye gerek yok.
@@ -715,6 +824,9 @@ router.get("/bist100/:share", (req, res) => {
       res.json(data);
     })
     .catch((err) => console.log(err));
+  // #swagger.tags = ['Bist']
+  // #swagger.summary = 'Bist Verileri Arama'
+  // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
 });
 
 // Client tarafında tarih kontrolü yapıp, eğer tarih uyuyorsa bu kısım çalıştır gibi bir şey yapılabilir.
@@ -845,6 +957,9 @@ router.get("/market", async (req, res) => {
       }
     })
     .catch((err) => console.log(err));
+  // #swagger.tags = ['Market']
+  // #swagger.summary = 'Günlük Bist, Dolar, Euro ve Altın Verileri'
+  // #swagger.description = 'Veriler DBye 19:00da kaydedilir.'
 });
 
 // Ekonomi Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
@@ -873,6 +988,9 @@ router.get("/news", (req, res) => {
       res.json(news);
     })
     .catch((err) => console.log(err));
+  // #swagger.tags = ['News']
+  // #swagger.summary = 'Günlük Ekonomi Haberleri'
+  // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
 });
 
 // Redis'e Bağlanma

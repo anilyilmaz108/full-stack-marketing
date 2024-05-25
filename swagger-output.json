@@ -1,0 +1,594 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Live Api",
+    "description": "Angular, Nodejs, PostgreSQL, Docker, Redis, Firebase kullanılarak yapılan Full-Stack bir projenin Swagger dökümantasyon sayfasıdır. Veriler LiveApi şeklinde günlük olarak değişmekte olup istenilen veriler DB ve Cache içinde tutulur. Conrainer kullanılmış olup, Redis -> Docker ile kaldırılmıştır. Backend Nodejs ile Frontend Angular ile yazılmıştır. Sunucu tarafında Firebase Hosting kullanılmıştır.",
+    "contact": {
+      "email": "anilyilmaz108@gmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "host": "localhost:8000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login İşlemi",
+        "description": "Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.",
+        "parameters": [
+          {
+            "name": "Auth",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                }
+              }
+            },
+            "description": "String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register İşlemi",
+        "description": "Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir.",
+        "parameters": [
+          {
+            "name": "Auth",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                }
+              }
+            },
+            "description": "String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/createUser": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "User Oluşturma",
+        "description": "Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir. Register işlemi ile farkı role verisi default olarak user gelir fakat bu işlemde rol de verilir. ",
+        "parameters": [
+          {
+            "name": "Auth",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                },
+                "role": {
+                  "example": "any"
+                }
+              }
+            },
+            "description": "String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/getAllUser": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Tüm User Verilerini Okuma",
+        "description": "Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/getUserById/{userId}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "User Verilerini IDye Göre Okuma",
+        "description": "Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "User",
+            "in": "path",
+            "description": "User IDye Göre İşlem Yapılır.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/deleteUser/{userId}": {
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "IDye Göre User Silme",
+        "description": "Veriler DB ve Cacheden Silinir.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "User",
+            "in": "path",
+            "description": "User IDye Göre İşlem Yapılır.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/createFollow": {
+      "post": {
+        "tags": [
+          "Follow"
+        ],
+        "summary": "Userın Takip Listesi Oluşturma",
+        "description": "Veriler DBye kaydedilir.",
+        "parameters": [
+          {
+            "name": "Follow",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "example": "any"
+                },
+                "shareSymbol": {
+                  "example": "any"
+                }
+              }
+            },
+            "description": "Int tipinde user ile String tipinde hisse verisi kullanılmaktadır."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/deleteFollow/{userId}/{shareSymbol}": {
+      "delete": {
+        "tags": [
+          "Follow"
+        ],
+        "summary": "Userın Takip Listesi Silme",
+        "description": "Veriler DBden silinir.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "shareSymbol",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Follow",
+            "in": "path",
+            "description": "User ID ile hisse sembolü verisi kullanılmaktadır.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/getFollow/{userId}": {
+      "get": {
+        "tags": [
+          "Follow"
+        ],
+        "summary": "Userın Tüm Takip Listesi",
+        "description": "Veriler DBden Okunur.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Follow",
+            "in": "path",
+            "description": "User ID verisi kullanılmaktadır.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/getFollowByShare/{userId}/{shareSymbol}": {
+      "get": {
+        "tags": [
+          "Follow"
+        ],
+        "summary": "Userın ID ve Hisseye Göre Takip Listesi",
+        "description": "Veriler DBden Okunur.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "shareSymbol",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Follow",
+            "in": "path",
+            "description": "User ID ve hisse sembolü verisi kullanılmaktadır.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/createPortfolio": {
+      "post": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "User Portfolio Oluşturma",
+        "description": "Veriler DBye kaydedilir. DBye kayıt işlemi sonrası Cachede kaydedilir.",
+        "parameters": [
+          {
+            "name": "Portfolio",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "example": "any"
+                },
+                "euro": {
+                  "example": "any"
+                },
+                "dolar": {
+                  "example": "any"
+                },
+                "altin": {
+                  "example": "any"
+                },
+                "hisse": {
+                  "example": "any"
+                },
+                "lira": {
+                  "example": "any"
+                }
+              }
+            },
+            "description": "Int tipinde user verisi, String tipinde euro, dolar, altın, lira verisi ve String Array tipinde hisse verisi kullanılmaktadır."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/getPortfolio/{user}": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "User IDye Göre Portfolio Listesi",
+        "description": "Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Portfolio",
+            "in": "path",
+            "description": "User ID verisi kullanılmaktadır.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/deletePortfolio/{user}": {
+      "delete": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "User IDye Göre Portfolio Silme",
+        "description": "Veriler DBden silinir.",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Portfolio",
+            "in": "path",
+            "description": "User ID verisi kullanılmaktadır.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/updatePortfolio/{user}": {
+      "put": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "User Portfolio Güncelleme",
+        "description": "Veriler DBye kaydedilir. DBye kayıt işlemi sonrası Cachede kaydedilir.",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Portfolio",
+            "in": "path",
+            "description": "Int tipinde user verisi kullanılmaktadır.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "euro": {
+                  "example": "any"
+                },
+                "dolar": {
+                  "example": "any"
+                },
+                "altin": {
+                  "example": "any"
+                },
+                "hisse": {
+                  "example": "any"
+                },
+                "lira": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/bist100": {
+      "get": {
+        "tags": [
+          "Bist"
+        ],
+        "summary": "Günlük Bist Verileri",
+        "description": "Veriler DBye 19:00da kaydedilir.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/bist100/{share}": {
+      "get": {
+        "tags": [
+          "Bist"
+        ],
+        "summary": "Bist Verileri Arama",
+        "description": "Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.",
+        "parameters": [
+          {
+            "name": "share",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/market": {
+      "get": {
+        "tags": [
+          "Market"
+        ],
+        "summary": "Günlük Bist, Dolar, Euro ve Altın Verileri",
+        "description": "Veriler DBye 19:00da kaydedilir.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/news": {
+      "get": {
+        "tags": [
+          "News"
+        ],
+        "summary": "Günlük Ekonomi Haberleri",
+        "description": "Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}
