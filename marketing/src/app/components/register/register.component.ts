@@ -1,23 +1,23 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { SharedModule } from '../../modules/shared.module';
-import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
+import { first } from 'rxjs';
+import { UserModel } from 'src/app/models/user.model';
+import { SharedModule } from 'src/app/modules/shared.module';
 import { AuthService } from 'src/app/services/auth.service';
 import { ErrorService } from 'src/app/services/error.service';
-import { UserModel } from 'src/app/models/user.model';
-import { first } from 'rxjs';
 import { SuccessService } from 'src/app/services/success.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-register',
   standalone: true,
   imports: [SharedModule],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css',
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.css'
 })
-export class LoginComponent implements OnInit {
+export class RegisterComponent implements OnInit{
   constructor() {}
   fb = inject(FormBuilder);
   http = inject(HttpClient);
@@ -32,8 +32,9 @@ export class LoginComponent implements OnInit {
   }
 
   form = this.fb.nonNullable.group({
-    email: ['testuser@gmail.com', Validators.required],
-    password: ['123123', Validators.required],
+    email: [null, Validators.required],
+    password: [null, Validators.required],
+    repassword: [null, Validators.required],
   });
 
   onSubmit(): void {
@@ -45,8 +46,11 @@ export class LoginComponent implements OnInit {
     if (rawForm.email === '' || rawForm.password === '') {
       this.errorService.errorHandler(0);
     }
+    if(rawForm.password !== rawForm.repassword) {
+      this.errorService.errorHandler(1);
+    }
     this.authService
-      .loginByApi(data)
+      .registerByApi(data)
       .pipe(first())
       .subscribe(
         (res) => {
@@ -55,8 +59,8 @@ export class LoginComponent implements OnInit {
             // Bilgiler hatalıysa
             this.errorService.errorHandler(0);
           } else {
-            // Giriş başarılıysa
-            this.successService.successHandler(201);
+            // Kayıt başarılıysa
+            this.successService.successHandler(202);
           }
           
         },
