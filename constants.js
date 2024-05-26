@@ -1,10 +1,12 @@
 const jwt = require('jsonwebtoken')
-
+require("dotenv").config({
+    override: true,
+  });
 const token = jwt.sign({
-    email: 'anilyilmaz108@gmail.com',
-    ad: 'Anil',
+    email: `${process.env.EMAIL}`,
+    ad: `${process.env.NAME}`,
     exp: Math.floor(Date.now() / 1000) + 60,
-    issuer: 'www.anonymous.com'
+    issuer: `${process.env.ISSUER}`
 }, 'secretKey')
 
 

@@ -1,7 +1,10 @@
 const { Sequelize, DataTypes } = require('sequelize')
+require("dotenv").config({
+    override: true,
+  });
 const db = {}
-const sequelize = new Sequelize('liveapidb', 'postgres', '176369', {
-    dialect: 'postgres',
+const sequelize = new Sequelize(`${process.env.DB}`, `${process.env.USERNAME}`, `${process.env.PASSWORD}`, {
+    dialect: `${process.env.DIALECT}`,
     logging: true,
     retry: 3
 })
