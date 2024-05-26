@@ -49,6 +49,7 @@ const ttl5sn = 60 * 60 * 60;
 // Express-Validation
 const validateUser = require("./middlewares/validators.middeware");
 const { validationResult } = require("express-validator");
+const constants = require('./constants')
 
 // İnit Model
 const User = require("./models/user-model");
@@ -71,9 +72,12 @@ app.get("/", (req, res) => {
 });
 
 // User login olma => GetUserByEmailAndPassword
-router.post("/login", validateUser.validateUser(), async (req, res) => {
+router.post("/login", cors(corsOptions), validateUser.validateUser(), async (req, res) => {
   const { email, password } = req.body;
   const errors = validationResult(req);
+  if(constants.token){
+    logger.logInfo(`${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı token üretildi = ${constants.token} `)
+    console.log('Hash Password:', constants.hashToPassword(password))
   client.get("User" + email + password).then(async (r) => {
     if (errors.isEmpty()) {
       if (r) {
@@ -116,6 +120,10 @@ router.post("/login", validateUser.validateUser(), async (req, res) => {
       );
     }
   });
+} else {
+  res.status(500).json({ message: 'Hatalı Token' })
+  logger.logError(`${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} token bulunamadı`)
+}
   // #swagger.summary = 'Login İşlemi'
   // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
   /*  #swagger.parameters['Auth'] = {
@@ -126,7 +134,7 @@ router.post("/login", validateUser.validateUser(), async (req, res) => {
 });
 
 // Create User => GetUserByID
-router.post("/register", validateUser.validateUser(), async (req, res) => {
+router.post("/register", cors(corsOptions), validateUser.validateUser(), async (req, res) => {
   const { email, password } = req.body;
   const errors = validationResult(req);
   if (errors.isEmpty()) {
@@ -176,7 +184,7 @@ router.post("/register", validateUser.validateUser(), async (req, res) => {
 });
 
 // User Oluşturma + Redis
-router.post("/createUser", async (req, res) => {
+router.post("/createUser", cors(corsOptions), async (req, res) => {
   try {
     const { email, password, role } = req.body;
     const userData = await User.create(
@@ -216,7 +224,7 @@ router.post("/createUser", async (req, res) => {
 });
 
 // Bütün Userları Listeleme + Redis
-router.get("/getAllUser", async (req, res) => {
+router.get("/getAllUser", cors(corsOptions), async (req, res) => {
   let keys = [];
   await client.keys("*").then(async (r) => {
     keys = r;
@@ -265,7 +273,7 @@ router.get("/getAllUser", async (req, res) => {
 });
 
 // ID'ye Göre User Çekme
-router.get("/getUserById/:userId", async (req, res) => {
+router.get("/getUserById/:userId", cors(corsOptions), async (req, res) => {
   const { userId } = req.params;
   client.get("User" + userId).then(async (r) => {
     if (r) {
@@ -308,7 +316,7 @@ router.get("/getUserById/:userId", async (req, res) => {
 });
 
 // ID'ye Göre User Silme
-router.delete("/deleteUser/:userId", async (req, res) => {
+router.delete("/deleteUser/:userId", cors(corsOptions), async (req, res) => {
   const { userId } = req.params;
   client.del("User" + userId).then(async (r) => {
     if (r) {
@@ -360,7 +368,7 @@ router.delete("/deleteUser/:userId", async (req, res) => {
 });
 
 // Userın takip ettiği hisseler POST
-router.post("/createFollow", async (req, res) => {
+router.post("/createFollow", cors(corsOptions), async (req, res) => {
   const { user, shareSymbol } = req.body;
   try {
     const followData = await Follow.create(
@@ -388,7 +396,7 @@ router.post("/createFollow", async (req, res) => {
 });
 
 // Userın takip ettiği hisseleri silme DELETE
-router.delete("/deleteFollow/:userId/:shareSymbol", async (req, res) => {
+router.delete("/deleteFollow/:userId/:shareSymbol", cors(corsOptions), async (req, res) => {
   const { userId, shareSymbol } = req.params;
   try {
     await Follow.destroy({ where: { user: userId, hisse: shareSymbol } });
@@ -413,7 +421,7 @@ router.delete("/deleteFollow/:userId/:shareSymbol", async (req, res) => {
 });
 
 // Userın takip listesi GET
-router.get("/getFollow/:userId", async (req, res) => {
+router.get("/getFollow/:userId", cors(corsOptions), async (req, res) => {
   var jsonAllData = [];
   const { userId } = req.params;
   try {
@@ -461,7 +469,7 @@ router.get("/getFollow/:userId", async (req, res) => {
 });
 
 // Userın takip ettiği tek bir hiise GET
-router.get("/getFollowByShare/:userId/:shareSymbol", async (req, res) => {
+router.get("/getFollowByShare/:userId/:shareSymbol", cors(corsOptions), async (req, res) => {
   var jsonAllData = [];
   const { userId, shareSymbol } = req.params;
   try {
@@ -511,7 +519,7 @@ router.get("/getFollowByShare/:userId/:shareSymbol", async (req, res) => {
 });
 
 // User portfolyo oluşturma
-router.post("/createPortfolio", async (req, res) => {
+router.post("/createPortfolio", cors(corsOptions), async (req, res) => {
   const { user, euro, dolar, altin, hisse, lira } = req.body;
   try {
     const portfolioData = await Portfolio.create(
@@ -556,7 +564,7 @@ router.post("/createPortfolio", async (req, res) => {
 });
 
 // User portfolio verilerini çekme
-router.get("/getPortfolio/:user", async (req, res) => {
+router.get("/getPortfolio/:user", cors(corsOptions), async (req, res) => {
   const { user } = req.params;
   client.get("Portfolio" + user).then(async (r) => {
     if (r) {
@@ -599,7 +607,7 @@ router.get("/getPortfolio/:user", async (req, res) => {
 });
 
 // User portfolio verilerini silme
-router.delete("/deletePortfolio/:user", async (req, res) => {
+router.delete("/deletePortfolio/:user", cors(corsOptions), async (req, res) => {
   const { user } = req.params;
   client.del("Portfolio" + user).then(async (r) => {
     if (r) {
@@ -651,7 +659,7 @@ router.delete("/deletePortfolio/:user", async (req, res) => {
 });
 
 // User portfolio verilerini güncelleme
-router.put("/updatePortfolio/:user", async (req, res) => {
+router.put("/updatePortfolio/:user", cors(corsOptions), async (req, res) => {
   const { user } = req.params;
   const { euro, dolar, altin, hisse, lira } = req.body;
   try {
@@ -700,7 +708,7 @@ router.put("/updatePortfolio/:user", async (req, res) => {
 });
 
 // BIST100 Verileri
-router.get("/bist100", async (req, res) => {
+router.get("/bist100", cors(corsOptions), async (req, res) => {
   bist100Data.splice(0, bist100Data.length);
   axios
     .get("https://bigpara.hurriyet.com.tr/borsa/canli-borsa/bist100/")
@@ -793,7 +801,7 @@ router.get("/bist100", async (req, res) => {
 });
 
 // Hisse Arama => Arama işleminde kullanılacağı için DB'ye eklemeye gerek yok.
-router.get("/bist100/:share", (req, res) => {
+router.get("/bist100/:share", cors(corsOptions), async(req, res) => {
   data.splice(0, data.length);
   const { share } = req.params;
   axios
@@ -847,7 +855,7 @@ router.get("/bist100/:share", (req, res) => {
 // Client tarafında tarih kontrolü yapıp, eğer tarih uyuyorsa bu kısım çalıştır gibi bir şey yapılabilir.
 // Saat 19:00:00'da eğer istek gelirse DB'ye atılır.
 // Piyasalar (Bist-Dolar-Euro-Altın)
-router.get("/market", async (req, res) => {
+router.get("/market", cors(corsOptions), async (req, res) => {
   market.splice(0, market.length);
   axios
     .get("https://bigpara.hurriyet.com.tr/borsa/hisse-senetleri/")
@@ -978,7 +986,7 @@ router.get("/market", async (req, res) => {
 });
 
 // Ekonomi Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
-router.get("/news", (req, res) => {
+router.get("/news", cors(corsOptions), async(req, res) => {
   news.splice(0, news.length);
   axios
     .get("https://www.sondakika.com/ekonomi/")
@@ -1020,7 +1028,7 @@ connectRedis().then(() => {
     // db.createTables()
     console.log("Server running...");
     // Üretilen Token
-    // console.log(constants.token)
+    console.log(constants.token)
   });
 });
 
