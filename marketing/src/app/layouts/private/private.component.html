@@ -1,0 +1,192 @@
+<div [ngClass]="{ 'ytp-dark-theme': isDarkTheme | async }">
+  <!-- Dark Theme -->
+  <mat-sidenav-container>
+    <mat-sidenav
+      #drawer
+      class="sidenav"
+      fixedInViewport
+    >
+      <mat-toolbar style="align-items: flex-start;">
+        <div class="text-center w-full relative">
+          <!--Logo-->
+          <div class="flow-root">
+            <div class="mt-3">
+              <img
+                class="mx-auto"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAAwCAYAAAClvqwiAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDYuMC1jMDA2IDc5LjE2NDY0OCwgMjAyMS8wMS8xMi0xNTo1MjoyOSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIyLjIgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MEQ5QjY3Nzk3NkEyMTFFQjk2Njk5NERCODRDQURCQUQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MEQ5QjY3N0E3NkEyMTFFQjk2Njk5NERCODRDQURCQUQiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDowRDlCNjc3Nzc2QTIxMUVCOTY2OTk0REI4NENBREJBRCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDowRDlCNjc3ODc2QTIxMUVCOTY2OTk0REI4NENBREJBRCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PkMThAAAAAdISURBVHja5FoL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"
+                style="cursor: pointer"
+                routerLink="/"
+              />
+            </div>
+          </div>
+          <!--Başlık-->
+          <div class="flow-root">
+            <div class="my-1 text-gray-500">{{ 'TITLE' | translate }}</div>
+          </div>
+          <!--Alt Başlık-->
+          <div class="flow-root">
+            <div>
+              <span>
+                  <div class="text-gray-400">
+                  testemailverisi
+                </div>
+              </span>
+            </div>
+         
+          </div>
+          <!-- Profile Photo -->
+          <div class="absolute w-full -bottom-18">
+            <img
+              class="rounded-full border-4 border-gray-700 mx-auto cursor-pointer focus:outline-none"
+              src="assets/images/blank-man.png"
+              width="90"
+              height="90"
+              routerLink="/private/profile"
+            />
+          </div>
+        </div>
+      </mat-toolbar>
+      <mat-nav-list>
+        <li>
+          <div routerLink="/" routerLinkActive="active-menu-item" [routerLinkActiveOptions]="{ exact: true }" class="flex items-center pt-2 mr-2 pb-2 bl-2 pr-8 rounded-r-lg hover:bg-gray-700 dark:hover:bg-gray-700">
+            <div class="ml-2">
+              <a class="flex items-center text-gray-900  dark:text-white group">
+                <mat-icon>home</mat-icon>
+                <span style="color: #fff" class="flex-1 mt-1 ms-3 whitespace-nowrap">{{ 'HOME' | translate }}</span>
+             </a>
+             </div>
+          </div>
+        </li>
+      <li class="pt-2 pb-2">
+       <button type="button" class="flex items-center pt-2 mr-2 pb-2 bl-2 pr-2 rounded-r-lg hover:bg-gray-700 dark:hover:bg-gray-700 transition duration-75" aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
+        <div class="mr-3"></div>     
+        <svg class="flex-shrink-0 w-4 h-4 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+          <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"/>
+       </svg>
+             <span class="flex-1 text-white ms-3 text-left  rtl:text-right whitespace-nowrap">{{ 'PANEL_NAME' | translate }}</span>
+             <div class="mr-3"></div>     
+             <svg class="w-6 h-6 text-gray-500 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+</svg>
+
+       </button>
+       <ul id="dropdown-example" class="hidden py-2 space-y-2">
+        <li>
+          <div routerLink="/example1" routerLinkActive="active-menu-item" [routerLinkActiveOptions]="{ exact: true }" class="flex items-center pt-2 mr-2 pb-2 bl-2 pr-8 rounded-r-lg hover:bg-gray-700 dark:hover:bg-gray-700">
+            <div class="ml-2">
+              <a class="flex items-center text-gray-900  dark:text-white group">
+                <mat-icon>library_books</mat-icon>
+                <span style="color: #fff" class="flex-1 mt-1 ms-3 whitespace-nowrap">{{ 'EXAMPLE' | translate }}1</span>
+             </a>
+             </div>
+          </div>
+        </li>
+        <li>
+          <div routerLink="/example2" routerLinkActive="active-menu-item" [routerLinkActiveOptions]="{ exact: true }" class="flex items-center pt-2 mr-2 pb-2 bl-2 pr-8 rounded-r-lg hover:bg-gray-700 dark:hover:bg-gray-700">
+            <div class="ml-2">
+              <a class="flex items-center text-gray-900  dark:text-white group">
+                <mat-icon>rule</mat-icon>
+                <span style="color: #fff" class="flex-1 mt-1 ms-3 whitespace-nowrap">{{ 'EXAMPLE' | translate }}2</span>
+             </a>
+             </div>
+          </div>
+        </li>
+       </ul>
+      </li>
+      <li>
+        <div (click)="logout()" class="flex items-center pt-2 mr-2 pb-2 bl-2 pr-8 rounded-r-lg hover:bg-gray-700 dark:hover:bg-gray-700">
+          <div class="ml-3">
+            <a class="flex items-center text-gray-900  dark:text-white group">
+              <mat-icon style="color: rgb(185 28 28);">logout</mat-icon>
+              <span class="flex-1 mt-1 ms-3 whitespace-nowrap text-red-700">{{ 'LOGOUT' | translate }}</span>
+           </a>
+           </div>
+        </div>
+      </li>
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content class="flex flex-col min-h-screen pb-48 sm:pb-8">
+      <mat-toolbar color="primary" class="mat-elevation-z4">
+      
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="drawer.toggle()"
+        >
+          <mat-icon *ngIf="drawer.opened">menu_open</mat-icon>
+          <mat-icon *ngIf="!drawer.opened">menu</mat-icon>
+        </button>
+        <!--Değişecek-->
+        <button class="ml-4 mb-1 text-white text-base" mat-flat-button color="primary" routerLink="/">{{ 'APP_NAME' | translate }}</button>
+        <!-- Buttons -->
+        <span class="flex-auto"></span>
+        <!-- Simülasyon -->
+        <button class="m-2"
+          mat-button
+          color="warn">
+          <mat-icon>play_disabled</mat-icon>
+        </button>
+        <!-- Eğitimci Mesajlar -->
+        <button class="m-2"
+          mat-button
+          aria-label="Mesajlar"
+          routerLink="/i/messages"
+        >
+        <!-- [matBadge]="iService.unreadSubject.value > 0 ? iService.unreadSubject.value: '' " -->
+          <mat-icon
+            [matBadge]="3"
+            matBadgeColor="warn"
+            >message</mat-icon
+          >
+        </button>
+        <!-- Tema -->
+        <!-- #tooltip="matTooltip" matTooltip="{{item.info}}" matTooltipPosition="above" -->
+        <button class="m-2"
+          mat-button
+          aria-label="Tema"
+          #tooltip="matTooltip"
+          matTooltip="{{ 'DARK_MODE' | translate }}"
+          (click)="toggleTheme()"
+        >
+          <mat-icon>invert_colors</mat-icon>
+        </button>
+        <!-- Dil -->
+        <button class="mb-2 mr-2 ml-2" mat-button [matMenuTriggerFor]="menu">
+          {{ lang | uppercase }}
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="changeLang('tr')">
+            <span
+              ><svg-icon
+                src="assets/images/tr.svg"
+                [svgStyle]="{ 'width.px': 32 }"
+              ></svg-icon
+            ></span>
+          </button>
+          <button mat-menu-item (click)="changeLang('en')">
+            <span
+              ><svg-icon
+                src="assets/images/us.svg"
+                [svgStyle]="{ 'width.px': 32 }"
+              ></svg-icon
+            ></span>
+          </button>
+        </mat-menu>
+        <!-- Çıkış -->
+        <button class="m-2"
+          mat-button
+          aria-label="Çıkış"
+          #tooltip="matTooltip"
+          matTooltip="{{ 'LOGOUT' | translate }}"
+          (click)="logout()"
+        >
+          <mat-icon>logout</mat-icon>
+        </button>
+      </mat-toolbar>
+      <!-- Content -->
+      <router-outlet></router-outlet>
+      <!-- Footer -->
+      <app-footer class="absolute bottom-0 w-full"></app-footer>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

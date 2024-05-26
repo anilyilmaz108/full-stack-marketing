@@ -3,6 +3,22 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const app = express();
+
+// Cors Options
+var cors = require("cors");
+app.use(cors());
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", ["http://localhost:8000","http://localhost:3307"]);
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    next();
+  })
+
+  var corsOptions = {
+    origin: 'http://localhost:4200',
+    optionsSuccessStatus: 200
+}
+
 const db = require("./db/db");
 const router = express.Router();
 
@@ -15,20 +31,7 @@ var swaggerUi = require("swagger-ui-express");
 swaggerDocument = require("./swagger-output.json");
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Cors Options
-var cors = require("cors");
-app.use(cors());
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", ["http://localhost:8000","http://localhost:4200"]);
-    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    next();
-  })
 
-  var corsOptions = {
-    origin: 'http://localhost:4200',
-    optionsSuccessStatus: 200
-}
 
 // Redis
 const { createClient } = require("redis");
