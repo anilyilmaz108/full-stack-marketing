@@ -1,4 +1,4 @@
-<!-- component -->
+<!--Card Components -->
 <div class="flex flex-wrap -mx-3 mb-5">
   <div class="w-full max-w-full px-3 mb-6 mx-auto bg-white">
     <div class="flex flex-wrap mt-5 mx-5 removable">
@@ -312,4 +312,65 @@
       </div>
     </div>
   </div>
+</div>
+
+<!--NewsLine-->
+<div style="width: 71%;"
+  class="ml-8 mb-5 p-5 border border-gray-100 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700 hover:scale-105 duration-500"
+>
+  <div>
+<div class="flex justify-between">
+    <time class="text-lg font-semibold text-gray-900 dark:text-white"
+    >Günlük Ekonomi Haberleri</time
+  >
+  <a href="/news"
+              ><label
+                class="text-gray-500 dark:text-gray-300 hover:underline hover:text-blue-500 inline-block hover:duration-300 cursor-pointer"
+                >Tümünü Göster</label
+              ></a>
+</div>
+  <ol
+    *ngFor="let item of news | slice:0:2; let i=index"
+    class="mt-3 divide-y divider-gray-200 dark:divide-gray-700"
+  >
+    <li>
+      <a
+        class="items-center block p-3 sm:flex hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <img
+          class="w-12 h-12 mb-3 me-3 rounded-full sm:mb-0"
+          src="assets/images/blank-man.png"
+          alt="news"
+        />
+        <div class="text-gray-600 dark:text-gray-400">
+          <div class="text-base font-normal">
+            <span class="font-medium text-gray-900 dark:text-white">{{
+              item.baslik
+            }}</span>
+          </div>
+          <div class="text-sm font-normal my-2">{{ item.aciklama }}</div>
+          <span
+            class="inline-flex items-center text-xs font-normal text-gray-500 dark:text-gray-400"
+          >
+            <svg
+              class="w-2.5 h-2.5 mr-1 text-gray-800 dark:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 10h16M8 14h8m-4-7V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
+              />
+            </svg>
+            {{ item.saat }}
+          </span>
+        </div>
+      </a>
+    </li>
+  </ol>
 </div>

@@ -13,9 +13,11 @@ import { AltinModel } from 'src/app/models/altin.model';
 import { BistModel } from 'src/app/models/bist.model';
 import { DolarModel } from 'src/app/models/dolar.model';
 import { EuroModel } from 'src/app/models/euro.model';
+import { NewsModel } from 'src/app/models/news.model';
 import { SharedModule } from 'src/app/modules/shared.module';
 import { ErrorService } from 'src/app/services/error.service';
 import { MarketService } from 'src/app/services/market.service';
+import { NewsService } from 'src/app/services/news.service';
 import { SuccessService } from 'src/app/services/success.service';
 
 @Component({
@@ -30,6 +32,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   marketService = inject(MarketService);
   errorService = inject(ErrorService);
   successService = inject(SuccessService);
+  newsService = inject(NewsService);
+
   subscriptionBist!: Subscription;
   subscriptionDolar!: Subscription;
   subscriptionEuro!: Subscription;
@@ -39,6 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   dolar!: DolarModel[];
   euro!: EuroModel[];
   altin!: AltinModel[];
+  news!: NewsModel[];
 
   bistValue:any = "";
   degisimBistValue:any = "";
@@ -55,6 +60,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.getDolarData();
     this.getEuroData();
     this.getAltinData();
+    this.getNews();
   }
 
   // Bist
@@ -175,6 +181,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         // API'ye erişilemiyorsa...
         this.errorService.errorHandler(404);
       });
+  }
+
+  // Haberler
+  getNews(){
+    this.newsService.getNews().subscribe((data) => {
+      this.news = data;
+    });
   }
 
   ngOnDestroy() {
