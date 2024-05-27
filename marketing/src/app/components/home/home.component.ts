@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import * as ApexCharts from 'apexcharts';
 import { initFlowbite } from 'flowbite';
 import {
   Subscription,
@@ -19,6 +20,59 @@ import { ErrorService } from 'src/app/services/error.service';
 import { MarketService } from 'src/app/services/market.service';
 import { NewsService } from 'src/app/services/news.service';
 import { SuccessService } from 'src/app/services/success.service';
+
+// Pie-Chart Model
+interface ChartOptions {
+  series: number[];
+  colors: string[];
+  chart: {
+    height: number;
+    width: string;
+    type: string;
+  };
+  stroke: {
+    colors: string[];
+    lineCap: string;
+  };
+  plotOptions: {
+    pie: {
+      labels: {
+        show: boolean;
+      };
+      size: string;
+      dataLabels: {
+        offset: number;
+      };
+    };
+  };
+  labels: string[];
+  dataLabels: {
+    enabled: boolean;
+    style: {
+      fontFamily: string;
+    };
+  };
+  legend: {
+    position: string;
+    fontFamily: string;
+  };
+  yaxis: {
+    labels: {
+      formatter: (value: number) => string;
+    };
+  };
+  xaxis: {
+    labels: {
+      formatter: (value: number) => string;
+    };
+    axisTicks: {
+      show: boolean;
+    };
+    axisBorder: {
+      show: boolean;
+    };
+  };
+}
 
 @Component({
   selector: 'app-home',
@@ -45,15 +99,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   altin!: AltinModel[];
   news!: NewsModel[];
 
-  bistValue:any = "";
-  degisimBistValue:any = "";
-  dolarValue:any = "";
-  degisimDolarValue:any = "";
-  euroValue:any = "";
-  degisimEuroValue:any = "";
-  altinValue:any = "";
-  degisimAltinValue:any = "";
- 
+  bistValue: any = '';
+  degisimBistValue: any = '';
+  dolarValue: any = '';
+  degisimDolarValue: any = '';
+  euroValue: any = '';
+  degisimEuroValue: any = '';
+  altinValue: any = '';
+  degisimAltinValue: any = '';
+
   ngOnInit(): void {
     initFlowbite();
     this.getBistData();
@@ -61,6 +115,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.getEuroData();
     this.getAltinData();
     this.getNews();
+
+    // Pie-Chart
+    if (
+      document.getElementById('pie-chart') &&
+      typeof ApexCharts !== 'undefined'
+    ) {
+      const chart = new ApexCharts(
+        document.getElementById('pie-chart'),
+        this.getChartOptions()
+      );
+      chart.render();
+    }
   }
 
   // Bist
@@ -82,15 +148,18 @@ export class HomeComponent implements OnInit, OnDestroy {
         }),
         filter((data) => data !== undefined)
       )
-      .subscribe((data) => {
-        if(data![0].bist != undefined && data![0].bist !== null){
-          this.bistValue = data![0].bist;
-          this.degisimBistValue = data![0].degisimBist;
-        } 
-      },(err) => {
-        // API'ye erişilemiyorsa...
-        this.errorService.errorHandler(404);
-      });
+      .subscribe(
+        (data) => {
+          if (data![0].bist != undefined && data![0].bist !== null) {
+            this.bistValue = data![0].bist;
+            this.degisimBistValue = data![0].degisimBist;
+          }
+        },
+        (err) => {
+          // API'ye erişilemiyorsa...
+          this.errorService.errorHandler(404);
+        }
+      );
   }
 
   // Dolar
@@ -109,18 +178,21 @@ export class HomeComponent implements OnInit, OnDestroy {
               return of(null);
             })
           );
-        }),
+        })
         //filter((data) => data !== undefined)
       )
-      .subscribe((data) => {
-        if(data![0].dolar != undefined && data![0].dolar !== null){
-          this.dolarValue = data![0].dolar;
-          this.degisimDolarValue = data![0].degisimdolar;
-        } 
-      }, (err) => {
-        // API'ye erişilemiyorsa...
-        this.errorService.errorHandler(404);
-      });
+      .subscribe(
+        (data) => {
+          if (data![0].dolar != undefined && data![0].dolar !== null) {
+            this.dolarValue = data![0].dolar;
+            this.degisimDolarValue = data![0].degisimdolar;
+          }
+        },
+        (err) => {
+          // API'ye erişilemiyorsa...
+          this.errorService.errorHandler(404);
+        }
+      );
   }
 
   // Euro
@@ -139,18 +211,21 @@ export class HomeComponent implements OnInit, OnDestroy {
               return of(null);
             })
           );
-        }),
+        })
         //filter((data) => data !== undefined)
       )
-      .subscribe((data) => {
-        if(data![0].euro != undefined && data![0].euro !== null){
-          this.euroValue = data![0].euro;
-          this.degisimEuroValue = data![0].degisimeuro;
-        } 
-      }, (err) => {
-        // API'ye erişilemiyorsa...
-        this.errorService.errorHandler(404);
-      });
+      .subscribe(
+        (data) => {
+          if (data![0].euro != undefined && data![0].euro !== null) {
+            this.euroValue = data![0].euro;
+            this.degisimEuroValue = data![0].degisimeuro;
+          }
+        },
+        (err) => {
+          // API'ye erişilemiyorsa...
+          this.errorService.errorHandler(404);
+        }
+      );
   }
 
   // Altın
@@ -169,26 +244,88 @@ export class HomeComponent implements OnInit, OnDestroy {
               return of(null);
             })
           );
-        }),
+        })
         //filter((data) => data !== undefined)
       )
-      .subscribe((data) => {
-        if(data![0].altin != undefined && data![0].altin !== null){
-          this.altinValue = data![0].altin;
-          this.degisimAltinValue = data![0].degisimaltin;
-        } 
-            }, (err) => {
-        // API'ye erişilemiyorsa...
-        this.errorService.errorHandler(404);
-      });
+      .subscribe(
+        (data) => {
+          if (data![0].altin != undefined && data![0].altin !== null) {
+            this.altinValue = data![0].altin;
+            this.degisimAltinValue = data![0].degisimaltin;
+          }
+        },
+        (err) => {
+          // API'ye erişilemiyorsa...
+          this.errorService.errorHandler(404);
+        }
+      );
   }
 
   // Haberler
-  getNews(){
+  getNews() {
     this.newsService.getNews().subscribe((data) => {
       this.news = data;
     });
   }
+
+  // Pie-Chart Properties
+  getChartOptions = (): ChartOptions => {
+    return {
+      series: [52.8, 26.8, 20.4],
+      colors: ['#1C64F2', '#16BDCA', '#9061F9'],
+      chart: {
+        height: 420,
+        width: '100%',
+        type: 'pie',
+      },
+      stroke: {
+        colors: ['white'],
+        lineCap: '',
+      },
+      plotOptions: {
+        pie: {
+          labels: {
+            show: true,
+          },
+          size: '100%',
+          dataLabels: {
+            offset: -25,
+          },
+        },
+      },
+      labels: ['Direct', 'Organic search', 'Referrals'],
+      dataLabels: {
+        enabled: true,
+        style: {
+          fontFamily: 'Inter, sans-serif',
+        },
+      },
+      legend: {
+        position: 'bottom',
+        fontFamily: 'Inter, sans-serif',
+      },
+      yaxis: {
+        labels: {
+          formatter: function (value: number) {
+            return value + '%';
+          },
+        },
+      },
+      xaxis: {
+        labels: {
+          formatter: function (value: number) {
+            return value + '%';
+          },
+        },
+        axisTicks: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+      },
+    };
+  };
 
   ngOnDestroy() {
     this.subscriptionBist.unsubscribe();
