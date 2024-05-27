@@ -562,13 +562,21 @@
         }
       }
     },
-    "/market": {
+    "/market/{marketId}": {
       "get": {
         "tags": [
           "Market"
         ],
         "summary": "Günlük Bist, Dolar, Euro ve Altın Verileri",
         "description": "Veriler DBye 19:00da kaydedilir.",
+        "parameters": [
+          {
+            "name": "marketId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"

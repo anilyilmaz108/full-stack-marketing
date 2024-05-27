@@ -8,16 +8,20 @@ const app = express();
 var cors = require("cors");
 app.use(cors());
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", ["http://localhost:8000","http://localhost:3307"]);
-    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    next();
-  })
+  res.setHeader("Access-Control-Allow-Origin", [
+    "http://localhost:8000",
+    "http://localhost:8001",
+    "http://localhost:3307",
+  ]);
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 
-  var corsOptions = {
-    origin: 'http://localhost:4200',
-    optionsSuccessStatus: 200
-}
+var corsOptions = {
+  origin: "http://localhost:4200",
+  optionsSuccessStatus: 200,
+};
 
 const db = require("./db/db");
 const router = express.Router();
@@ -31,9 +35,9 @@ var swaggerUi = require("swagger-ui-express");
 swaggerDocument = require("./swagger-output.json");
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-
-
 // Redis
+// docker run --name liveapiredis -p 8001:6379 -d redis
+// docker-compose -f docker-compose.yml up
 const { createClient } = require("redis");
 const client = createClient({});
 
@@ -52,7 +56,7 @@ const ttl5sn = 60 * 60 * 60;
 // Express-Validation
 const validateUser = require("./middlewares/validators.middeware");
 const { validationResult } = require("express-validator");
-const constants = require('./constants')
+const constants = require("./constants");
 
 // İnit Model
 const User = require("./models/user-model");
@@ -75,116 +79,130 @@ app.get("/", (req, res) => {
 });
 
 // User login olma => GetUserByEmailAndPassword
-router.post("/login", cors(corsOptions), validateUser.validateUser(), async (req, res) => {
-  const { email, password } = req.body;
-  const errors = validationResult(req);
-  if(constants.token){
-    logger.logInfo(`${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı token üretildi = ${constants.token} `)
-    console.log('Hash Password:', constants.hashToPassword(password))
-  client.get("User" + email + password).then(async (r) => {
-    if (errors.isEmpty()) {
-      if (r) {
-        console.log("isExist", r);
-        logger.logInfo(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-        );
-        res.status(200).json(JSON.parse(r));
-      } else {
-        console.log("notExist", r);
-        try {
-          const findedData = await User.findOne(
-            { where: { email: email } },
-            { where: { password: password } }
-          );
-          logger.logInfo(
-            `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı. girilen mail: ${email} girilen password: ${password}`
-          );
-          res.status(200).json(findedData);
+router.post(
+  "/login",
+  cors(corsOptions),
+  validateUser.validateUser(),
+  async (req, res) => {
+    const { email, password } = req.body;
+    const errors = validationResult(req);
+    if (constants.token) {
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı token üretildi = ${constants.token} `
+      );
+      console.log("Hash Password:", constants.hashToPassword(password));
+      client.get("User" + email + password).then(async (r) => {
+        if (errors.isEmpty()) {
+          if (r) {
+            console.log("isExist", r);
+            logger.logInfo(
+              `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+            );
+            res.status(200).json(JSON.parse(r));
+          } else {
+            console.log("notExist", r);
+            try {
+              const findedData = await User.findOne(
+                { where: { email: email } },
+                { where: { password: password } }
+              );
+              logger.logInfo(
+                `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı. girilen mail: ${email} girilen password: ${password}`
+              );
+              res.status(200).json(findedData);
 
-          // Eğer Redisde Yoksa Redise Eklesin. Bir Sonraki Aramalarda DB Çağırılmasın
-          client
-            .set("User" + email + password, JSON.stringify(findedData), {
-              EX: ttl5sn,
-            })
-            .then(async (v) => {
-              console.log("SET ETME İŞLEMİ", v);
-            });
-        } catch (error) {
+              // Eğer Redisde Yoksa Redise Eklesin. Bir Sonraki Aramalarda DB Çağırılmasın
+              client
+                .set("User" + email + password, JSON.stringify(findedData), {
+                  EX: ttl5sn,
+                })
+                .then(async (v) => {
+                  console.log("SET ETME İŞLEMİ", v);
+                });
+            } catch (error) {
+              logger.logError(
+                `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
+              );
+              res.status(500).json({ message: "Hata Gerçekleşti " });
+            }
+          }
+        } else {
+          res.status(500).json({ message: "Hatalı Giriş" });
           logger.logError(
             `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
           );
-          res.status(500).json({ message: "Hata Gerçekleşti " });
         }
-      }
+      });
     } else {
-      res.status(500).json({ message: "Hatalı Giriş" });
+      res.status(500).json({ message: "Hatalı Token" });
       logger.logError(
-        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} token bulunamadı`
       );
     }
-  });
-} else {
-  res.status(500).json({ message: 'Hatalı Token' })
-  logger.logError(`${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} token bulunamadı`)
-}
-  // #swagger.summary = 'Login İşlemi'
-  // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
-  /*  #swagger.parameters['Auth'] = {
+    // #swagger.summary = 'Login İşlemi'
+    // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
+    /*  #swagger.parameters['Auth'] = {
         in: 'body',
         description: 'String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır.',
       } */
-  // #swagger.tags = ['Auth']
-});
+    // #swagger.tags = ['Auth']
+  }
+);
 
 // Create User => GetUserByID
-router.post("/register", cors(corsOptions), validateUser.validateUser(), async (req, res) => {
-  const { email, password } = req.body;
-  const errors = validationResult(req);
-  if (errors.isEmpty()) {
-    try {
-      const userData = await User.create(
-        {
-          email,
-          password,
-        },
-        { logging: true }
-      );
-      const jsonData = JSON.stringify(userData);
-      const redisKey = JSON.parse(jsonData);
-      logger.logInfo(
-        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı. girilen mail: ${email} girilen password: ${password}`
-      );
-      res.status(200).json(userData);
-      // Redis SET
-      client
-        .set(
-          "User" + redisKey["email"] + redisKey["password"],
-          JSON.stringify(userData),
-          { EX: ttl5sn }
-        )
-        .then(async (v) => {
-          console.log("SET ETME İŞLEMİ", v);
-        });
-    } catch (error) {
+router.post(
+  "/register",
+  cors(corsOptions),
+  validateUser.validateUser(),
+  async (req, res) => {
+    const { email, password } = req.body;
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+      try {
+        const userData = await User.create(
+          {
+            email,
+            password,
+          },
+          { logging: true }
+        );
+        const jsonData = JSON.stringify(userData);
+        const redisKey = JSON.parse(jsonData);
+        logger.logInfo(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı. girilen mail: ${email} girilen password: ${password}`
+        );
+        res.status(200).json(userData);
+        // Redis SET
+        client
+          .set(
+            "User" + redisKey["email"] + redisKey["password"],
+            JSON.stringify(userData),
+            { EX: ttl5sn }
+          )
+          .then(async (v) => {
+            console.log("SET ETME İŞLEMİ", v);
+          });
+      } catch (error) {
+        logger.logError(
+          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
+        );
+        res.status(500).json({ message: "Hata Gerçekleşti" });
+      }
+    } else {
       logger.logError(
         `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
       );
-      res.status(500).json({ message: "Hata Gerçekleşti" });
+      res.status(400).json(errors.array({ onlyFirstError: false }));
     }
-  } else {
-    logger.logError(
-      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
-    );
-    res.status(400).json(errors.array({ onlyFirstError: false }));
-  }
-  // #swagger.summary = 'Register İşlemi'
-  // #swagger.description = 'Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir.'
-  /*  #swagger.parameters['Auth'] = {
+    // #swagger.summary = 'Register İşlemi'
+    // #swagger.description = 'Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir.'
+    /*  #swagger.parameters['Auth'] = {
         in: 'body',
         description: 'String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır.',
       } */
-  // #swagger.tags = ['Auth']
-});
+    // #swagger.tags = ['Auth']
+  }
+);
 
 // User Oluşturma + Redis
 router.post("/createUser", cors(corsOptions), async (req, res) => {
@@ -399,29 +417,33 @@ router.post("/createFollow", cors(corsOptions), async (req, res) => {
 });
 
 // Userın takip ettiği hisseleri silme DELETE
-router.delete("/deleteFollow/:userId/:shareSymbol", cors(corsOptions), async (req, res) => {
-  const { userId, shareSymbol } = req.params;
-  try {
-    await Follow.destroy({ where: { user: userId, hisse: shareSymbol } });
-    logger.logInfo(
-      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-    );
-    res.status(200).json({ message: "Silme İşlemi Başarılı" });
-  } catch (error) {
-    logger.logError(
-      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
-    );
-    res.status(500).json({ message: "Hata Gerçekleşti" });
-    console.log("err", error);
-  }
-  // #swagger.tags = ['Follow']
-  // #swagger.summary = 'Userın Takip Listesi Silme'
-  // #swagger.description = 'Veriler DBden silinir.'
-  /*  #swagger.parameters['Follow'] = {
+router.delete(
+  "/deleteFollow/:userId/:shareSymbol",
+  cors(corsOptions),
+  async (req, res) => {
+    const { userId, shareSymbol } = req.params;
+    try {
+      await Follow.destroy({ where: { user: userId, hisse: shareSymbol } });
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+      );
+      res.status(200).json({ message: "Silme İşlemi Başarılı" });
+    } catch (error) {
+      logger.logError(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+      );
+      res.status(500).json({ message: "Hata Gerçekleşti" });
+      console.log("err", error);
+    }
+    // #swagger.tags = ['Follow']
+    // #swagger.summary = 'Userın Takip Listesi Silme'
+    // #swagger.description = 'Veriler DBden silinir.'
+    /*  #swagger.parameters['Follow'] = {
         in: 'path',
         description: 'User ID ile hisse sembolü verisi kullanılmaktadır.',
       } */
-});
+  }
+);
 
 // Userın takip listesi GET
 router.get("/getFollow/:userId", cors(corsOptions), async (req, res) => {
@@ -472,54 +494,60 @@ router.get("/getFollow/:userId", cors(corsOptions), async (req, res) => {
 });
 
 // Userın takip ettiği tek bir hiise GET
-router.get("/getFollowByShare/:userId/:shareSymbol", cors(corsOptions), async (req, res) => {
-  var jsonAllData = [];
-  const { userId, shareSymbol } = req.params;
-  try {
-    const findedData = await Follow.findAll({
-      where: { user: userId, hisse: shareSymbol },
-    });
-    for (let index = 0; index < findedData.length; index++) {
-      const element = findedData[index];
-      const follows = await Share.findAll({ where: { hisse: element.hisse } });
-      var x = {
-        id: follows[0].id,
-        hisse: follows[0].hisse,
-        sonFiyat: follows[0].sonFiyat,
-        satisFiyat: follows[0].sonFiyat,
-        fiyat: follows[0].fiyat,
-        dusukFiyat: follows[0].dusukFiyat,
-        ortalama: follows[0].ortalama,
-        yuzde: follows[0].yuzde,
-        dunKapanis: follows[0].dunKapanis,
-        fark: follows[0].fark,
-        taban: follows[0].taban,
-        tavan: follows[0].tavan,
-        hacimLot: follows[0].hacimLot,
-        hacim: follows[0].hacim,
-        saat: follows[0].saat,
-      };
-      jsonAllData.push(x);
+router.get(
+  "/getFollowByShare/:userId/:shareSymbol",
+  cors(corsOptions),
+  async (req, res) => {
+    var jsonAllData = [];
+    const { userId, shareSymbol } = req.params;
+    try {
+      const findedData = await Follow.findAll({
+        where: { user: userId, hisse: shareSymbol },
+      });
+      for (let index = 0; index < findedData.length; index++) {
+        const element = findedData[index];
+        const follows = await Share.findAll({
+          where: { hisse: element.hisse },
+        });
+        var x = {
+          id: follows[0].id,
+          hisse: follows[0].hisse,
+          sonFiyat: follows[0].sonFiyat,
+          satisFiyat: follows[0].sonFiyat,
+          fiyat: follows[0].fiyat,
+          dusukFiyat: follows[0].dusukFiyat,
+          ortalama: follows[0].ortalama,
+          yuzde: follows[0].yuzde,
+          dunKapanis: follows[0].dunKapanis,
+          fark: follows[0].fark,
+          taban: follows[0].taban,
+          tavan: follows[0].tavan,
+          hacimLot: follows[0].hacimLot,
+          hacim: follows[0].hacim,
+          saat: follows[0].saat,
+        };
+        jsonAllData.push(x);
+      }
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+      );
+      res.status(200).json(jsonAllData);
+    } catch (error) {
+      console.log("err", error);
+      logger.logError(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+      );
+      res.status(500).json({ message: "Hata Gerçekleşti " });
     }
-    logger.logInfo(
-      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-    );
-    res.status(200).json(jsonAllData);
-  } catch (error) {
-    console.log("err", error);
-    logger.logError(
-      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
-    );
-    res.status(500).json({ message: "Hata Gerçekleşti " });
-  }
-  // #swagger.tags = ['Follow']
-  // #swagger.summary = 'Userın ID ve Hisseye Göre Takip Listesi'
-  // #swagger.description = 'Veriler DBden Okunur.'
-  /*  #swagger.parameters['Follow'] = {
+    // #swagger.tags = ['Follow']
+    // #swagger.summary = 'Userın ID ve Hisseye Göre Takip Listesi'
+    // #swagger.description = 'Veriler DBden Okunur.'
+    /*  #swagger.parameters['Follow'] = {
         in: 'path',
         description: 'User ID ve hisse sembolü verisi kullanılmaktadır.',
       } */
-});
+  }
+);
 
 // User portfolyo oluşturma
 router.post("/createPortfolio", cors(corsOptions), async (req, res) => {
@@ -804,7 +832,7 @@ router.get("/bist100", cors(corsOptions), async (req, res) => {
 });
 
 // Hisse Arama => Arama işleminde kullanılacağı için DB'ye eklemeye gerek yok.
-router.get("/bist100/:share", cors(corsOptions), async(req, res) => {
+router.get("/bist100/:share", cors(corsOptions), async (req, res) => {
   data.splice(0, data.length);
   const { share } = req.params;
   axios
@@ -858,7 +886,8 @@ router.get("/bist100/:share", cors(corsOptions), async(req, res) => {
 // Client tarafında tarih kontrolü yapıp, eğer tarih uyuyorsa bu kısım çalıştır gibi bir şey yapılabilir.
 // Saat 19:00:00'da eğer istek gelirse DB'ye atılır.
 // Piyasalar (Bist-Dolar-Euro-Altın)
-router.get("/market", cors(corsOptions), async (req, res) => {
+router.get("/market/:marketId", cors(corsOptions), async (req, res) => {
+  const { marketId } = req.params;
   market.splice(0, market.length);
   axios
     .get("https://bigpara.hurriyet.com.tr/borsa/hisse-senetleri/")
@@ -903,34 +932,45 @@ router.get("/market", cors(corsOptions), async (req, res) => {
       const yuksekaltin = marketArray.split(" ")[53];
       const acilisaltin = marketArray.split(" ")[56];
 
-      market.push({
-        bist,
-        degisimBist,
-        hacimBist,
-        yuksekBist,
-        acilisBist,
-        dusukBist,
-        tarihBist,
-        sonVeriSaatiBist,
-        dolar,
-        degisimdolar,
-        dusukdolar,
-        tarihdolar,
-        yuksekdolar,
-        acilisdolar,
-        euro,
-        degisimeuro,
-        dusukeuro,
-        tariheuro,
-        yuksekeuro,
-        aciliseuro,
-        altin,
-        degisimaltin,
-        dusukaltin,
-        tarihaltin,
-        yuksekaltin,
-        acilisaltin,
-      });
+      if (marketId == 1) {
+        market.push({
+          bist,
+          degisimBist,
+          hacimBist,
+          yuksekBist,
+          acilisBist,
+          dusukBist,
+          tarihBist,
+          sonVeriSaatiBist,
+        });
+      } else if (marketId == 2) {
+        market.push({
+          dolar,
+          degisimdolar,
+          dusukdolar,
+          tarihdolar,
+          yuksekdolar,
+          acilisdolar,
+        });
+      } else if (marketId == 3) {
+        market.push({
+          euro,
+          degisimeuro,
+          dusukeuro,
+          tariheuro,
+          yuksekeuro,
+          aciliseuro,
+        });
+      } else {
+        market.push({
+          altin,
+          degisimaltin,
+          dusukaltin,
+          tarihaltin,
+          yuksekaltin,
+          acilisaltin,
+        });
+      }
 
       res.status(200).json(market);
       var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
@@ -989,7 +1029,7 @@ router.get("/market", cors(corsOptions), async (req, res) => {
 });
 
 // Ekonomi Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
-router.get("/news", cors(corsOptions), async(req, res) => {
+router.get("/news", cors(corsOptions), async (req, res) => {
   news.splice(0, news.length);
   axios
     .get("https://www.sondakika.com/ekonomi/")
@@ -1031,7 +1071,7 @@ connectRedis().then(() => {
     // db.createTables()
     console.log("Server running...");
     // Üretilen Token
-    console.log(constants.token)
+    console.log(constants.token);
   });
 });
 
