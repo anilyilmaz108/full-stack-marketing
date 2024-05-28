@@ -15,4 +15,9 @@ export class ShareService {
   getShareById(share: string) {
     return this.httpClient.get<ShareModel>(api + '/bist100/' + share);
   }
+
+  // Bist100 Tüm Veriler
+  getShare() {
+    return this.httpClient.get<any[]>(api + '/bist100');
+  }
 }

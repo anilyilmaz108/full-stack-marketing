@@ -7,6 +7,7 @@ import { LoginComponent } from './components/login/login.component';
 import { PortfolioComponent } from './components/portfolio/portfolio.component';
 import { AuthGuard } from './helpers/auth.guard';
 import { RegisterComponent } from './components/register/register.component';
+import { ShareComponent } from './components/share/share.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
       {
         path: 'portfolio',
         component: PortfolioComponent,
+      },
+      {
+        path: 'share',
+        component: ShareComponent,
       },
     ],
   },

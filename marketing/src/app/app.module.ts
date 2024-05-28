@@ -18,6 +18,10 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient);
 }
 
+interface NgxSpinnerConfig {
+  type?: string;
+}
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -28,7 +32,6 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
     AppRoutingModule,
     SharedModule,
     NgApexchartsModule,
-    NgxSpinnerModule,
     HttpClientModule,
     TranslateModule.forRoot({
       loader: {
@@ -39,7 +42,10 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
       defaultLanguage: "tr"
     }),
     FooterComponent,
-    AngularSvgIconModule.forRoot()
+    AngularSvgIconModule.forRoot(),
+    NgxSpinnerModule.forRoot({
+      type:'line-scale-party'
+    })
   ],
   providers: [
     provideAnimationsAsync()

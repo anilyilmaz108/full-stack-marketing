@@ -122,7 +122,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.getAltinData();
     this.getNews();
 
-    this.getOneTimeDolar();
+    //this.getOneTimeDolar();
+    //this.getOneTimeEuro();
+    //this.getOneTimeGold();
   }
 
   // Bist
@@ -191,7 +193,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       );
   }
 
-  // Dolar sadece 1 kez
+/**  // Dolar sadece 1 kez
   getOneTimeDolar(){
     this.getDolarDataByService().subscribe( 
       (val)=> {
@@ -216,7 +218,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               this.gold = Number(val![0].altin);
             }
           );
-        }
+        } */
 
   // Euro
   getEuroDataByService() {
