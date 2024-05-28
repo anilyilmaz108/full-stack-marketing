@@ -27,6 +27,9 @@ const Portfolio = db.sequelize.define('Portfolio', {
     lira: {
         type: DataTypes.STRING({ length: 50 }),
     },
+    hisseLot: {
+        type: DataTypes.ARRAY( DataTypes.TEXT ),
+    },
 }, {
     createdAt: true,
     updatedAt: true,

@@ -12,6 +12,7 @@ import { FooterComponent } from './layouts/private/footer/footer.component';
 import { TranslateModule, TranslateLoader } from "@ngx-translate/core";
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { AngularSvgIconModule } from 'angular-svg-icon';
+import { NgApexchartsModule } from "ng-apexcharts";
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient);
@@ -26,6 +27,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
     BrowserModule,
     AppRoutingModule,
     SharedModule,
+    NgApexchartsModule,
     NgxSpinnerModule,
     HttpClientModule,
     TranslateModule.forRoot({

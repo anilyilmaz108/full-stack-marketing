@@ -400,13 +400,23 @@ class="ml-8 p-5 border border-gray-100 rounded-lg bg-gray-50 dark:bg-gray-800 da
               <div data-popper-arrow></div>
           </div>
         </div>
-      </div>
-    </div>   
+      </div> 
+    </div> 
+    
     <!-- Line Chart -->
-    <div class="py-6" id="pie-chart"></div>
+    <div id="chart">
+      <apx-chart *ngIf="isLoading"
+        [series]="temp"
+        [chart]="chartOptions.chart"
+        [labels]="tempLabel"
+        [responsive]="chartOptions.responsive!"
+        [colors]="chartOptions.colors!"
+      ></apx-chart>
+    </div>
+    
     <a
     href="/portfolio"
-    class="flex justify-end uppercase text-sm font-semibold items-center rounded-lg text-blue-600 hover:text-blue-900 dark:hover:text-blue-900 px-3 py-2">
+    class="flex justify-end uppercase text-sm font-semibold items-center rounded-lg text-blue-600 hover:text-blue-900 dark:hover:text-blue-500 px-3 py-2">
     Portföyüm
     <svg class="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>

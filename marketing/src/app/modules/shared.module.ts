@@ -17,6 +17,7 @@ import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatTableModule} from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import {MatSortModule} from '@angular/material/sort';
+import { NgApexchartsModule } from "ng-apexcharts";
 
 
 
@@ -42,7 +43,8 @@ import {MatSortModule} from '@angular/material/sort';
     MatPaginatorModule,
     MatTableModule,
     MatInputModule,
-    MatSortModule
+    MatSortModule,
+    NgApexchartsModule
     
   ],
   exports: [
@@ -64,7 +66,8 @@ import {MatSortModule} from '@angular/material/sort';
     MatPaginatorModule,
     MatTableModule,
     MatInputModule,
-    MatSortModule
+    MatSortModule,
+    NgApexchartsModule
   ]
 })
 export class SharedModule { }

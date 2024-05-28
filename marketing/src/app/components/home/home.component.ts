@@ -1,13 +1,15 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import * as ApexCharts from 'apexcharts';
 import { initFlowbite } from 'flowbite';
 import {
+  Observable,
   Subscription,
   catchError,
   filter,
   of,
   repeat,
   switchMap,
+  timeout,
   timer,
 } from 'rxjs';
 import { AltinModel } from 'src/app/models/altin.model';
@@ -15,64 +17,26 @@ import { BistModel } from 'src/app/models/bist.model';
 import { DolarModel } from 'src/app/models/dolar.model';
 import { EuroModel } from 'src/app/models/euro.model';
 import { NewsModel } from 'src/app/models/news.model';
+import { PortfolioModel } from 'src/app/models/portfolio.model';
+import { ShareModel } from 'src/app/models/share.model';
 import { SharedModule } from 'src/app/modules/shared.module';
+import { AuthService } from 'src/app/services/auth.service';
 import { ErrorService } from 'src/app/services/error.service';
 import { MarketService } from 'src/app/services/market.service';
 import { NewsService } from 'src/app/services/news.service';
+import { PortfolioService } from 'src/app/services/portfolio.service';
+import { ShareService } from 'src/app/services/share.service';
 import { SuccessService } from 'src/app/services/success.service';
+import { ChartComponent } from "ng-apexcharts";
 
-// Pie-Chart Model
-interface ChartOptions {
-  series: number[];
-  colors: string[];
-  chart: {
-    height: number;
-    width: string;
-    type: string;
-  };
-  stroke: {
-    colors: string[];
-    lineCap: string;
-  };
-  plotOptions: {
-    pie: {
-      labels: {
-        show: boolean;
-      };
-      size: string;
-      dataLabels: {
-        offset: number;
-      };
-    };
-  };
-  labels: string[];
-  dataLabels: {
-    enabled: boolean;
-    style: {
-      fontFamily: string;
-    };
-  };
-  legend: {
-    position: string;
-    fontFamily: string;
-  };
-  yaxis: {
-    labels: {
-      formatter: (value: number) => string;
-    };
-  };
-  xaxis: {
-    labels: {
-      formatter: (value: number) => string;
-    };
-    axisTicks: {
-      show: boolean;
-    };
-    axisBorder: {
-      show: boolean;
-    };
-  };
-}
+export type ChartOptions = {
+  series: ApexNonAxisChartSeries;
+  chart: any;
+  responsive: ApexResponsive[];
+  labels: any;
+  colors: any[];
+};
+
 
 @Component({
   selector: 'app-home',
@@ -82,11 +46,42 @@ interface ChartOptions {
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  constructor() {}
+  @ViewChild("chart") chart!: ChartComponent;
+  public chartOptions: Partial<ChartOptions>;
+  isLoading: boolean = false;
+  constructor() {
+    this.chartOptions = {
+      series: [
+        20, 40, 20, 10, 10
+      ],
+      colors: ["#1C64F2", "#16BDCA", "#9061F9", "#23D8BA", "#CEDA1A", "#C73523"],
+      chart: {
+        width: 380,
+        type: "pie"
+      },
+      labels: ["EUR", "USD", "XAU", "TL", "Hisse1", "Hisse2"],
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              position: "bottom"
+            }
+          }
+        }
+      ]
+    };
+  }
   marketService = inject(MarketService);
   errorService = inject(ErrorService);
   successService = inject(SuccessService);
   newsService = inject(NewsService);
+  portfolioService = inject(PortfolioService);
+  authService = inject(AuthService);
+  shareService = inject(ShareService);
 
   subscriptionBist!: Subscription;
   subscriptionDolar!: Subscription;
@@ -98,6 +93,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   euro!: EuroModel[];
   altin!: AltinModel[];
   news!: NewsModel[];
+  portfolio: PortfolioModel[] = [];
+  share: any;
 
   bistValue: any = '';
   degisimBistValue: any = '';
@@ -108,25 +105,24 @@ export class HomeComponent implements OnInit, OnDestroy {
   altinValue: any = '';
   degisimAltinValue: any = '';
 
+  usd: number = 32;
+  eur: number = 35;
+  gold: number = 2428;
+
+  temp: ApexNonAxisChartSeries = [];
+  tempLabel: any = [];
+
   ngOnInit(): void {
     initFlowbite();
+    var currentUser = this.authService.userValues();
+    this.getPortfolio(currentUser.id!);
     this.getBistData();
     this.getDolarData();
     this.getEuroData();
     this.getAltinData();
     this.getNews();
 
-    // Pie-Chart
-    if (
-      document.getElementById('pie-chart') &&
-      typeof ApexCharts !== 'undefined'
-    ) {
-      const chart = new ApexCharts(
-        document.getElementById('pie-chart'),
-        this.getChartOptions()
-      );
-      chart.render();
-    }
+    this.getOneTimeDolar();
   }
 
   // Bist
@@ -141,7 +137,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           return this.getBistDataByService().pipe(
             catchError((err) => {
               // Handle errors
-              console.error(err);
+              //console.error(err);
               return of(null);
             })
           );
@@ -174,12 +170,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           return this.getDolarDataByService().pipe(
             catchError((err) => {
               // Handle errors
-              console.error(err);
+              //console.error(err);
               return of(null);
             })
           );
-        })
-        //filter((data) => data !== undefined)
+        }),
+        filter((data) => data !== undefined)
       )
       .subscribe(
         (data) => {
@@ -195,6 +191,33 @@ export class HomeComponent implements OnInit, OnDestroy {
       );
   }
 
+  // Dolar sadece 1 kez
+  getOneTimeDolar(){
+    this.getDolarDataByService().subscribe( 
+      (val)=> {
+        this.usd = Number(val![0].dolar);
+      }
+    );
+  }
+
+    // Euro sadece 1 kez
+    getOneTimeEuro(){
+      this.getEuroDataByService().subscribe( 
+        (val)=> {
+          this.eur = Number(val![0].euro);
+        }
+      );
+    }
+
+        // Altın sadece 1 kez
+        getOneTimeGold(){
+          this.getAltinDataByService().subscribe( 
+            (val)=> {
+              this.gold = Number(val![0].altin);
+            }
+          );
+        }
+
   // Euro
   getEuroDataByService() {
     return this.marketService.getEuro(3);
@@ -207,12 +230,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           return this.getEuroDataByService().pipe(
             catchError((err) => {
               // Handle errors
-              console.error(err);
+              //console.error(err);
               return of(null);
             })
           );
-        })
-        //filter((data) => data !== undefined)
+        }),
+        filter((data) => data !== undefined)
       )
       .subscribe(
         (data) => {
@@ -240,12 +263,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           return this.getAltinDataByService().pipe(
             catchError((err) => {
               // Handle errors
-              console.error(err);
+              //console.error(err);
               return of(null);
             })
           );
-        })
-        //filter((data) => data !== undefined)
+        }),
+        filter((data) => data !== undefined)
       )
       .subscribe(
         (data) => {
@@ -268,64 +291,98 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Pie-Chart Properties
-  getChartOptions = (): ChartOptions => {
-    return {
-      series: [52.8, 26.8, 20.4],
-      colors: ['#1C64F2', '#16BDCA', '#9061F9'],
-      chart: {
-        height: 420,
-        width: '100%',
-        type: 'pie',
+  shareArr: any = [];
+  shareLotArr: any = [];
+  // Portfolio
+  getPortfolio(user: number){
+    this.portfolioService.getPortfolio(user).pipe(
+      timeout({
+        each: 1000,
+      })
+    ).subscribe({
+      next: (item) => {
+        this.portfolio = item;
+        this.temp.push(Number(item[0].dolar) * this.usd);
+        this.tempLabel.push("USD");
+        this.temp.push(Number(item[0].euro) * this.eur);
+        this.tempLabel.push("EUR");
+        this.temp.push(Number(item[0].altin) * this.gold);
+        this.tempLabel.push("XAU");
+        this.temp.push(Number(item[0].lira));
+        this.tempLabel.push("TL");
+        for (let index = 0; index < item[0].hisse!.length; index++) {
+          var hisse = item[0].hisse![index];
+          var lot = Number(item[0].hisseLot![index]);
+          this.searchDataBist(hisse).pipe(
+            timeout({
+              each: 3000,
+            })
+          ).subscribe({
+            next: (data) => {
+              this.share = data;             
+              //debugger;
+              setTimeout(()=>{     
+                this.shareArr.push(this.share[index].fiyat);
+                this.shareLotArr.push(this.portfolio[0].hisseLot![index]);
+                //debugger;
+                this.tempLabel.push(this.share[index].hisse);
+                this.temp.push(Number(this.share[0].fiyat) * Number(item[0].hisseLot![index]));
+                console.log(this.share[index].hisse);          
+            }, 5000);
+          
+            },
+            complete: () => {
+             
+              //console.log(this.temp);
+              //console.log(this.tempLabel);  
+   
+            }
+          });
+          //debugger;
+          
+        }
+      
+        
       },
-      stroke: {
-        colors: ['white'],
-        lineCap: '',
-      },
-      plotOptions: {
-        pie: {
-          labels: {
-            show: true,
-          },
-          size: '100%',
-          dataLabels: {
-            offset: -25,
-          },
-        },
-      },
-      labels: ['Direct', 'Organic search', 'Referrals'],
-      dataLabels: {
-        enabled: true,
-        style: {
-          fontFamily: 'Inter, sans-serif',
-        },
-      },
-      legend: {
-        position: 'bottom',
-        fontFamily: 'Inter, sans-serif',
-      },
-      yaxis: {
-        labels: {
-          formatter: function (value: number) {
-            return value + '%';
-          },
-        },
-      },
-      xaxis: {
-        labels: {
-          formatter: function (value: number) {
-            return value + '%';
-          },
-        },
-        axisTicks: {
-          show: false,
-        },
-        axisBorder: {
-          show: false,
-        },
-      },
-    };
-  };
+      complete: () => {
+        setTimeout(()=>{     
+          console.log(this.shareArr);
+          console.log(this.shareLotArr);   
+          if(this.shareArr.length == 2){
+            this.isLoading = true
+          }                 
+      }, 10000);
+   
+      }
+    });
+
+  }
+
+  // Bist100 Veri Arama
+   searchDataBist(shareSymbol: string) : Observable<ShareModel>{
+    return this.shareService.getShareById(shareSymbol);
+  }
+
+  // Yüzde hesaplama
+  calculatePriceToPercent(portfolio: PortfolioModel[], share: ShareModel[], data: number) : number{
+    let dolar = Number(this.portfolio[0].dolar);
+    let euro = Number(portfolio[0].euro);
+    let altin = Number(portfolio[0].altin);
+    let lira = Number(portfolio[0].lira);
+    let hisseValue = 0;
+    for (let index = 0; index < portfolio[0].hisse!.length; index++) {
+      const hisse = portfolio[0].hisse![index];
+      const lot = Number(portfolio[0].hisseLot![index]);
+      this.searchDataBist(hisse);
+      hisseValue += (Number(share[index].fiyat) * lot);
+    }
+    let res = 0;
+    let numerator = data;
+    let denominator = dolar + euro + altin + lira + hisseValue;
+    res = numerator / denominator;
+    console.log(res * 100);
+    return res * 100;
+  }
 
   ngOnDestroy() {
     this.subscriptionBist.unsubscribe();

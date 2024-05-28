@@ -551,7 +551,7 @@ router.get(
 
 // User portfolyo oluşturma
 router.post("/createPortfolio", cors(corsOptions), async (req, res) => {
-  const { user, euro, dolar, altin, hisse, lira } = req.body;
+  const { user, euro, dolar, altin, hisse, lira, hisseLot } = req.body;
   try {
     const portfolioData = await Portfolio.create(
       {
@@ -561,6 +561,7 @@ router.post("/createPortfolio", cors(corsOptions), async (req, res) => {
         altin: altin,
         hisse: hisse,
         lira: lira,
+        hisseLot: hisseLot
       },
       { logging: true }
     );
@@ -603,7 +604,7 @@ router.get("/getPortfolio/:user", cors(corsOptions), async (req, res) => {
       logger.logInfo(
         `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
       );
-      res.status(200).json(JSON.parse(r));
+      res.status(200).json([JSON.parse(r)]);
     } else {
       console.log("notExist", r);
       try {
@@ -611,11 +612,11 @@ router.get("/getPortfolio/:user", cors(corsOptions), async (req, res) => {
         logger.logInfo(
           `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
         );
-        res.status(200).json(findedData);
+        res.status(200).json([findedData]);
 
         // Eğer Redisde Yoksa Redise Eklesin. Bir Sonraki Aramalarda DB Çağırılmasın
         client
-          .set("Portfolio" + userId, JSON.stringify(findedData), { EX: ttl5sn })
+          .set("Portfolio" + user, JSON.stringify(findedData), { EX: ttl5sn })
           .then(async (v) => {
             console.log("SET ETME İŞLEMİ", v);
           });
@@ -692,7 +693,7 @@ router.delete("/deletePortfolio/:user", cors(corsOptions), async (req, res) => {
 // User portfolio verilerini güncelleme
 router.put("/updatePortfolio/:user", cors(corsOptions), async (req, res) => {
   const { user } = req.params;
-  const { euro, dolar, altin, hisse, lira } = req.body;
+  const { euro, dolar, altin, hisse, lira, hisseLot } = req.body;
   try {
     const findedData = await Portfolio.findOne({ where: { user: user } });
     const up = await Portfolio.update(
@@ -702,6 +703,7 @@ router.put("/updatePortfolio/:user", cors(corsOptions), async (req, res) => {
         altin: altin,
         hisse: hisse,
         lira: lira,
+        hisseLot: hisseLot
       },
       { where: { user: user } },
       { logging: true }
@@ -843,7 +845,7 @@ router.get("/bist100/:share", cors(corsOptions), async (req, res) => {
       const hisse = share;
       const sonFiyat = $(`li[id=h_td_alis_id_${share}]`, html).text();
       const satisFiyat = $(`li[id=h_td_satis_id_${share}]`, html).text();
-      const fiyat = $(`li[id=h_td_fiyat_id_${share}]`, html).text();
+      const fiyat = $(`li[id=h_td_fiyat_id_${share}]`, html).text().split(",")[0];
       const dusukFiyat = $(`li[id=h_td_dusuk_id_${share}]`, html).text();
       const ortalama = $(`li[id=h_td_aort_id_${share}]`, html).text();
       const yuzde = $(`li[id=h_td_yuzde_id_${share}]`, html).text();
@@ -974,7 +976,6 @@ router.get("/market/:marketId", cors(corsOptions), async (req, res) => {
 
       res.status(200).json(market);
       var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
-      console.log(datetime);
       // Veri Tabanına Günde 1 kez kayıt edilsin.
       if (datetime.getHours() == 19 && datetime.getMinutes() == 0) {
         console.log("DB Market Kayıt");
