@@ -1,7 +1,7 @@
 <!-- Content -->
 <div class="container p-4 md:p-6 xl:p-8 mx-auto max-w-screen-lg">
   <div class="relative mb-16 mt-8" *ngIf="!share">
-    <ngx-spinner 
+    <ngx-spinner
       type="ball-scale-multiple"
       name="share"
       bdColor="rgba(0, 0, 0, 0.8)"
@@ -107,7 +107,13 @@
         <!-- Dün Kapanış Column -->
         <ng-container matColumnDef="dunKapanis">
           <th mat-header-cell *matHeaderCellDef>Önceki Kapanış</th>
-          <td class="justify-center text-center items-center" mat-cell *matCellDef="let row">{{ row.dunKapanis }}</td>
+          <td
+            class="justify-center text-center items-center"
+            mat-cell
+            *matCellDef="let row"
+          >
+            {{ row.dunKapanis }}
+          </td>
         </ng-container>
 
         <!-- Fark Column -->
@@ -144,18 +150,20 @@
         <ng-container matColumnDef="info" stickyEnd>
           <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
           <td mat-cell *matCellDef="let element">
-            <button mat-raised-button
-            #tooltip2="matTooltip" [matTooltip]="tooltipContent(element)"
-                    matTooltipPosition="right"
-        aria-label="Button that displays a tooltip in right positions">
-        <mat-icon
-        class="text-yellow-400 hover:text-yellow-200 dark:hover:text-yellow-200"
-        >info</mat-icon
-      >
-</button>
+            <button
+              mat-raised-button
+              #tooltip2="matTooltip"
+              [matTooltip]="tooltipContent(element)"
+              matTooltipPosition="right"
+              aria-label="Button that displays a tooltip in right positions"
+            >
+              <mat-icon
+                class="text-yellow-400 hover:text-yellow-200 dark:hover:text-yellow-200"
+                >info</mat-icon
+              >
+            </button>
           </td>
         </ng-container>
-
 
         <!-- Favorite Column -->
         <ng-container matColumnDef="fav" stickyEnd>
@@ -189,11 +197,10 @@
     </div>
     <!-- Tips -->
     <div class="m-4 text-gray-400 text-xs">
+      <li>Bist100 günlük verileri tabloda gösterilmektedir.</li>
       <li>
-        Bist100 günlük verileri tabloda gösterilmektedir. 
-      </li>
-      <li>
-        İstenilen hissenin bilgilerini görebilir, favorilerinize ekleyebilirsiniz.
+        İstenilen hissenin bilgilerini görebilir, favorilerinize
+        ekleyebilirsiniz.
       </li>
     </div>
   </div>

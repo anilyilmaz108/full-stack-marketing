@@ -603,6 +603,62 @@
           }
         }
       }
+    },
+    "/finance": {
+      "get": {
+        "tags": [
+          "News"
+        ],
+        "summary": "Günlük Finans Haberleri",
+        "description": "Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/tech": {
+      "get": {
+        "tags": [
+          "News"
+        ],
+        "summary": "Günlük Teknoloji Haberleri",
+        "description": "Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/culture": {
+      "get": {
+        "tags": [
+          "News"
+        ],
+        "summary": "Günlük Kültür-Sanat Haberleri",
+        "description": "Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "News"
+        ],
+        "summary": "Günlük Sağlık Haberleri",
+        "description": "Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   }
 }

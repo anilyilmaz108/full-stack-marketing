@@ -18,6 +18,7 @@ import {MatTableModule} from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import {MatSortModule} from '@angular/material/sort';
 import { NgApexchartsModule } from "ng-apexcharts";
+import { RouterModule } from '@angular/router';
 
 
 
@@ -44,8 +45,8 @@ import { NgApexchartsModule } from "ng-apexcharts";
     MatTableModule,
     MatInputModule,
     MatSortModule,
-    NgApexchartsModule
-    
+    NgApexchartsModule,
+    RouterModule,
   ],
   exports: [
     CommonModule,
@@ -67,7 +68,8 @@ import { NgApexchartsModule } from "ng-apexcharts";
     MatTableModule,
     MatInputModule,
     MatSortModule,
-    NgApexchartsModule
+    NgApexchartsModule,
+    RouterModule,
   ]
 })
 export class SharedModule { }

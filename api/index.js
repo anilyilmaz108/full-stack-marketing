@@ -1060,6 +1060,130 @@ router.get("/news", cors(corsOptions), async (req, res) => {
   // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
 });
 
+// Finans Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
+router.get("/finance", cors(corsOptions), async (req, res) => {
+  news.splice(0, news.length);
+  axios
+    .get("https://www.sondakika.com/finans/")
+    .then((response) => {
+      const html = response.data;
+      const $ = cheerio.load(html);
+      $("li[class=nws]", html).each(function () {
+        const totalArray = $(this).text().trim().split("   ");
+        const saat = totalArray[0];
+        const baslik = totalArray[2];
+        const aciklama = totalArray[3];
+
+        // const imgArray = $('img', html).attr('alt');
+        // console.log(imgArray);
+
+        news.push({
+          saat,
+          baslik,
+          aciklama,
+        });
+      });
+      res.json(news);
+    })
+    .catch((err) => console.log(err));
+  // #swagger.tags = ['News']
+  // #swagger.summary = 'Günlük Finans Haberleri'
+  // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
+});
+
+// Finans Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
+router.get("/tech", cors(corsOptions), async (req, res) => {
+  news.splice(0, news.length);
+  axios
+    .get("https://www.sondakika.com/teknoloji/")
+    .then((response) => {
+      const html = response.data;
+      const $ = cheerio.load(html);
+      $("li[class=nws]", html).each(function () {
+        const totalArray = $(this).text().trim().split("   ");
+        const saat = totalArray[0];
+        const baslik = totalArray[2];
+        const aciklama = totalArray[3];
+
+        // const imgArray = $('img', html).attr('alt');
+        // console.log(imgArray);
+
+        news.push({
+          saat,
+          baslik,
+          aciklama,
+        });
+      });
+      res.json(news);
+    })
+    .catch((err) => console.log(err));
+  // #swagger.tags = ['News']
+  // #swagger.summary = 'Günlük Teknoloji Haberleri'
+  // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
+});
+
+// Kültür-Sanat Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
+router.get("/culture", cors(corsOptions), async (req, res) => {
+  news.splice(0, news.length);
+  axios
+    .get("https://www.sondakika.com/kultur-sanat/")
+    .then((response) => {
+      const html = response.data;
+      const $ = cheerio.load(html);
+      $("li[class=nws]", html).each(function () {
+        const totalArray = $(this).text().trim().split("   ");
+        const saat = totalArray[0];
+        const baslik = totalArray[2];
+        const aciklama = totalArray[3];
+
+        // const imgArray = $('img', html).attr('alt');
+        // console.log(imgArray);
+
+        news.push({
+          saat,
+          baslik,
+          aciklama,
+        });
+      });
+      res.json(news);
+    })
+    .catch((err) => console.log(err));
+  // #swagger.tags = ['News']
+  // #swagger.summary = 'Günlük Kültür-Sanat Haberleri'
+  // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
+});
+
+// Sağlık Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
+router.get("/health", cors(corsOptions), async (req, res) => {
+  news.splice(0, news.length);
+  axios
+    .get("https://www.sondakika.com/saglik/")
+    .then((response) => {
+      const html = response.data;
+      const $ = cheerio.load(html);
+      $("li[class=nws]", html).each(function () {
+        const totalArray = $(this).text().trim().split("   ");
+        const saat = totalArray[0];
+        const baslik = totalArray[2];
+        const aciklama = totalArray[3];
+
+        // const imgArray = $('img', html).attr('alt');
+        // console.log(imgArray);
+
+        news.push({
+          saat,
+          baslik,
+          aciklama,
+        });
+      });
+      res.json(news);
+    })
+    .catch((err) => console.log(err));
+  // #swagger.tags = ['News']
+  // #swagger.summary = 'Günlük Sağlık Haberleri'
+  // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
+});
+
 // Redis'e Bağlanma
 const connectRedis = async () => {
   await client.connect();

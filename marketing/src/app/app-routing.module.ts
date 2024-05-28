@@ -8,6 +8,7 @@ import { PortfolioComponent } from './components/portfolio/portfolio.component';
 import { AuthGuard } from './helpers/auth.guard';
 import { RegisterComponent } from './components/register/register.component';
 import { ShareComponent } from './components/share/share.component';
+import { NewsComponent } from './components/news/news.component';
 
 const routes: Routes = [
   {
@@ -26,6 +27,10 @@ const routes: Routes = [
       {
         path: 'share',
         component: ShareComponent,
+      },
+      {
+        path: 'news',
+        component: NewsComponent,
       },
     ],
   },

@@ -28,7 +28,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class ShareComponent implements AfterViewInit {
   shareService = inject(ShareService);
   errorService = inject(ErrorService);
-  //authService = inject(AuthService);
+  authService = inject(AuthService);
   share!: any[];
   dataSource!: MatTableDataSource<any>;
   displayedColumns: string[] = [
@@ -47,7 +47,9 @@ export class ShareComponent implements AfterViewInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   spinner = inject(NgxSpinnerService);
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog) {
+    var currentUser = this.authService.userValues();
+  }
 
   ngAfterViewInit(): void {
     initFlowbite();

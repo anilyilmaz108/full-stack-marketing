@@ -1,0 +1,116 @@
+<body style="background-color: #f7f4f4">
+    <div style="background-color: #f7f4f4">
+        <div class="head">
+          <div class="headerobjectswrapper">
+            <div class="weatherforcastbox">
+              <span style="font-style: italic"
+                >Ekonomi, finans, teknoloji, kültür-sanat ve sağlığa dair haberler piyasam.com</span
+              ><br />
+            </div>
+            <header>{{typedText$ | async }}</header>
+          </div>
+      
+          <div class="subhead">İstanbul, Türkiye - {{currentDate | date}}</div>
+        </div>
+        <div class="content">
+          <div class="collumns">
+            <div class="collumn">
+              <div class="head">
+                <span class="headline hl3">Son Dakika Ekonomi Haberleri</span>
+                <p>
+                  <span class="headline hl4"
+                    >Anlık ekonomi haberleri için düzenli takip ediniz</span
+                  >
+                </p>
+              </div>
+              <div *ngFor="let item of news">
+                <h1 class="mb-1 font-bold">
+                  {{ item.baslik }}
+                  <h5 class="ml-8 font-extralight text-slate-500">{{ item.saat }}</h5>
+                </h1>
+                <p class="mb-4">
+                  {{ item.aciklama }}
+                </p>
+              </div>
+            </div>
+            <div class="collumn">
+              <div class="head">
+                <span class="headline hl5">Son Dakika Finans Haberleri</span>
+                <p>
+                  <span class="headline hl6"
+                    >Anlık finans haberleri için düzenli takip ediniz</span
+                  >
+                </p>
+              </div>
+              <div *ngFor="let item of finance">
+                <h1 class="mb-1 font-bold">
+                  {{ item.baslik }}
+                  <h5 class="ml-8 font-extralight text-slate-500">{{ item.saat }}</h5>
+                </h1>
+                <p class="mb-4">
+                  {{ item.aciklama }}
+                </p>
+              </div>
+            </div>
+            <div class="collumn">
+              <div class="head">
+                <span class="headline hl1">Son Dakika Teknoloji Haberleri</span>
+                <p>
+                  <span class="headline hl2"
+                    >Anlık teknoloji haberleri için düzenli takip ediniz</span
+                  >
+                </p>
+              </div>
+              <div *ngFor="let item of tech">
+                <h1 class="mb-1 font-bold">
+                  {{ item.baslik }}
+                  <h5 class="ml-8 font-extralight text-slate-500">{{ item.saat }}</h5>
+                </h1>
+                <p class="mb-4">
+                  {{ item.aciklama }}
+                </p>
+              </div>
+            </div>
+            <div class="collumn">
+              <div class="head">
+                <span class="headline hl3">Son Dakika Kültür-Sanat Haberleri</span>
+                <p>
+                  <span class="headline hl4"
+                    >Anlık kültür-sanat haberleri için düzenli takip ediniz</span
+                  >
+                </p>
+              </div>
+              <div *ngFor="let item of culture">
+                <h1 class="mb-1 font-bold">
+                  {{ item.baslik }}
+                  <h5 class="ml-8 font-extralight text-slate-500">{{ item.saat }}</h5>
+                </h1>
+                <p class="mb-4">
+                  {{ item.aciklama }}
+                </p>
+              </div>
+            </div>
+            <div class="collumn">
+              <div class="head">
+                <span class="headline hl1">Son Dakika Sağlık Haberleri</span>
+                <p>
+                  <span class="headline hl4"
+                    >Anlık sağlık haberleri için düzenli takip ediniz</span
+                  >
+                </p>
+              </div>
+              <div *ngFor="let item of health">
+                <h1 class="mb-1 font-bold">
+                  {{ item.baslik }}
+                  <h5 class="ml-8 font-extralight text-slate-500">{{ item.saat }}</h5>
+                </h1>
+                <p class="mb-4">
+                  {{ item.aciklama }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+</body>
+
