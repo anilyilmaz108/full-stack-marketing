@@ -348,9 +348,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         setTimeout(()=>{     
           console.log(this.shareArr);
           console.log(this.shareLotArr);   
-          if(this.shareArr.length == 2){
             this.isLoading = true
-          }                 
+            
+          
+          
       }, 10000);
    
       }
