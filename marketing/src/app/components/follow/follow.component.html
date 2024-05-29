@@ -1,0 +1,206 @@
+<!-- Content -->
+<div class="container p-4 md:p-6 xl:p-8 mx-auto max-w-screen-lg">
+    <div class="relative mb-16 mt-8" *ngIf="!share">
+      <ngx-spinner
+        type="ball-scale-multiple"
+        name="follow"
+        bdColor="rgba(0, 0, 0, 0.8)"
+        size="medium"
+        color="#eeeeee"
+        [fullScreen]="false"
+      ></ngx-spinner>
+    </div>
+  
+    <div class="relative p-4 overflow-x-auto shadow-md sm:rounded-lg">
+      <div
+        class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4"
+      >
+        <!--Search Bar-->
+        <div class="pb-4 bg-white dark:bg-gray-900">
+          <label for="table-search" class="sr-only">Filtrele</label>
+          <div class="relative mt-1">
+            <div
+              class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
+            >
+              <svg
+                class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                />
+              </svg>
+            </div>
+            <input
+              matInput
+              (keyup)="applyFilter($event)"
+              placeholder="Ör: PGSUS"
+              #input
+              type="text"
+              id="table-search"
+              class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Herhangi bir veriye göre ara."
+            />
+          </div>
+        </div>
+        <div>
+          <!--Add Button-->
+          <!--Modal Toggle-->
+          <button
+            (click)="exportData()"
+            type="button"
+            class="text-white h-9 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Excel'e Aktar
+          </button>
+        </div>
+      </div>
+  
+      <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSource">
+          <!-- Hisse Column -->
+          <ng-container matColumnDef="hisse">
+            <th mat-header-cell *matHeaderCellDef>Hisse</th>
+            <td mat-cell *matCellDef="let row">{{ row.hisse }}</td>
+          </ng-container>
+  
+          <!-- Fiyat Column -->
+          <ng-container matColumnDef="fiyat">
+            <th mat-header-cell *matHeaderCellDef>Fiyat</th>
+            <td mat-cell *matCellDef="let row">{{ row.fiyat }}</td>
+          </ng-container>
+  
+          <!-- Tavan Column -->
+          <ng-container matColumnDef="tavan">
+            <th class="px-4 py-2" mat-header-cell *matHeaderCellDef>En Yüksek</th>
+            <td class="px-4 py-2" mat-cell *matCellDef="let row">
+              {{ row.tavan }}
+            </td>
+          </ng-container>
+  
+          <!-- Taban Column -->
+          <ng-container matColumnDef="taban">
+            <th mat-header-cell *matHeaderCellDef>En Düşük</th>
+            <td mat-cell *matCellDef="let row">{{ row.taban }}</td>
+          </ng-container>
+  
+          <!-- Yüzde Column -->
+          <ng-container matColumnDef="yuzde">
+            <th mat-header-cell *matHeaderCellDef>Yüzde</th>
+            <td mat-cell *matCellDef="let row">
+              <span *ngIf="!row.yuzde.includes('-')" class="text-green-500"
+                >{{ row.yuzde }}%</span
+              >
+              <span *ngIf="row.yuzde.includes('-')" class="text-red-500"
+                >{{ row.yuzde }}%</span
+              >
+            </td>
+          </ng-container>
+  
+          <!-- Dün Kapanış Column -->
+          <ng-container matColumnDef="dunKapanis">
+            <th mat-header-cell *matHeaderCellDef>Önceki Kapanış</th>
+            <td
+              class="justify-center text-center items-center"
+              mat-cell
+              *matCellDef="let row"
+            >
+              {{ row.dunKapanis }}
+            </td>
+          </ng-container>
+  
+          <!-- Fark Column -->
+          <ng-container matColumnDef="fark">
+            <th mat-header-cell *matHeaderCellDef>Fark</th>
+            <td mat-cell *matCellDef="let row">
+              <span *ngIf="!row.fark.includes('-')" class="text-green-500">{{
+                row.fark
+              }}</span>
+              <span *ngIf="row.fark.includes('-')" class="text-red-500">{{
+                row.fark
+              }}</span>
+            </td>
+          </ng-container>
+  
+          <!-- Status Column -->
+          <ng-container matColumnDef="status" stickyEnd>
+            <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-icon
+                *ngIf="!element.fark.includes('-')"
+                class="text-green-600 hover:text-green-400 dark:hover:text-green-400"
+                >arrow_drop_up</mat-icon
+              >
+              <mat-icon
+                *ngIf="element.fark.includes('-')"
+                class="text-red-500 hover:text-red-300 dark:hover:text-yellow-300"
+                >arrow_drop_down</mat-icon
+              >
+            </td>
+          </ng-container>
+  
+          <!-- Info Column -->
+          <ng-container matColumnDef="info" stickyEnd>
+            <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
+            <td mat-cell *matCellDef="let element">
+              <button
+                mat-raised-button
+                #tooltip2="matTooltip"
+                [matTooltip]="tooltipContent(element)"
+                matTooltipPosition="right"
+                aria-label="Button that displays a tooltip in right positions"
+              >
+                <mat-icon
+                  class="text-yellow-400 hover:text-yellow-200 dark:hover:text-yellow-200"
+                  >info</mat-icon
+                >
+              </button>
+            </td>
+          </ng-container>
+  
+          <!-- Delete Column -->
+          <ng-container matColumnDef="del" stickyEnd>
+            <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-icon (click)="deleteFollow(element.hisse)"
+                class="text-red-700 hover:text-red-400 dark:hover:text-red-400"
+                >delete_outline</mat-icon
+              >
+            </td>
+          </ng-container>
+  
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="9">
+              Herhangi bir eşleşme bulunamadı "{{ input.value }}"
+            </td>
+          </tr>
+        </table>
+  
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          showFirstLastButtons
+          aria-label="Hisse veri"
+        ></mat-paginator>
+      </div>
+      <!-- Tips -->
+      <div class="m-4 text-gray-400 text-xs">
+        <li>Bist100 günlük verileri tabloda gösterilmektedir.</li>
+        <li>
+          İstenilen hissenin bilgilerini görebilir, favorilerinizden
+          silebilirsiniz.
+        </li>
+      </div>
+    </div>
+  </div>
+  

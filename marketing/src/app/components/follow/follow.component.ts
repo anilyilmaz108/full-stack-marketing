@@ -1,41 +1,35 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ViewChild,
-  inject,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, ViewChild, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { initFlowbite } from 'flowbite';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Subscription, first } from 'rxjs';
+import { Subscription} from 'rxjs';
 import { SharedModule } from 'src/app/modules/shared.module';
 import { AuthService } from 'src/app/services/auth.service';
 import { ErrorService } from 'src/app/services/error.service';
 import { ShareService } from 'src/app/services/share.service';
-import { MatDialog } from '@angular/material/dialog';
 import { SuccessService } from 'src/app/services/success.service';
 
 @Component({
-  selector: 'app-share',
+  selector: 'app-follow',
   standalone: true,
   imports: [SharedModule, CommonModule, MatTableModule, MatPaginatorModule],
-  templateUrl: './share.component.html',
-  styleUrl: './share.component.css',
+  templateUrl: './follow.component.html',
+  styleUrl: './follow.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShareComponent implements AfterViewInit {
+export class FollowComponent implements AfterViewInit, OnDestroy {
   shareService = inject(ShareService);
   errorService = inject(ErrorService);
   successService = inject(SuccessService);
   authService = inject(AuthService);
+  userID: any;
   share!: any[];
-  follow!: any[];
   dataSource!: MatTableDataSource<any>;
   displayedColumns: string[] = [
-    'hisseSembolu',
+    'hisse',
     'fiyat',
     'tavan',
     'taban',
@@ -44,29 +38,26 @@ export class ShareComponent implements AfterViewInit {
     'fark',
     'status',
     'info',
-    'fav'
+    'del'
   ];
   subscription!: Subscription;
-  user: any;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   spinner = inject(NgxSpinnerService);
   constructor(public dialog: MatDialog) {
     var currentUser = this.authService.userValues();
-    this.user = currentUser;
+    this.userID = currentUser.id;
   }
 
   ngAfterViewInit(): void {
-    initFlowbite();
     var currentUser = this.authService.userValues();
-    this.getFollow(currentUser.id!);
-    this.spinner.show('share');
-    this.subscription = this.shareService.getShare().subscribe(
+    initFlowbite();
+    this.spinner.show('follow');
+    this.subscription = this.shareService.getFollowList(currentUser.id!).subscribe(
       (data) => {
         this.dataSource = new MatTableDataSource(data);
         this.dataSource.paginator = this.paginator;
-        this.share = data;
-        this.spinner.hide('share');
+        this.spinner.hide('follow');
       },
       (err) => {
         // API'ye erişilemiyorsa...
@@ -89,7 +80,7 @@ export class ShareComponent implements AfterViewInit {
   // Satış Fiyat: ${data.satisFiyat} \n 
   tooltipContent(data:any){
     return `
-    Hisse: ${data.hisseSembolu} \n 
+    Hisse: ${data.hisse} \n 
     Fiyat: ${data.fiyat} \n 
     Ortalama: ${data.ortalama} \n 
     Yüzde: ${data.yuzde} \n 
@@ -103,60 +94,31 @@ export class ShareComponent implements AfterViewInit {
     `;
   }
 
-  createFollow(data: any, userId: any, shareSymbol: any) {
-      var isFollow = true;
-      var hasFound = 0;
-      console.log(data.hisseSembolu);
-      console.log(this.follow);
-      
-      for (let index = 0; index < this.follow.length; index++) {
-        const element = this.follow[index];
-        if(element.hisse === data.hisseSembolu){
-          hasFound++;
-        }
-      }
-      if(hasFound == 0) {
-        console.log('Listede yok');
-        this.shareService
-        .createFollow(userId, shareSymbol)
-        .pipe(first())
-        .subscribe(
-          (res) => {
-            console.log(res);
-            if (res == null) {
-              // Bilgiler hatalıysa
+  deleteFollow(shareSymbol: any) {
+    this.shareService.deleteFollow(this.userID, shareSymbol).subscribe(
+      (res) => {
+          this.successService.successHandler(204);
+          this.subscription = this.shareService.getFollowList(this.userID).subscribe(
+            (data) => {
+              this.dataSource = new MatTableDataSource(data);
+              this.dataSource.paginator = this.paginator;
+            },
+            (err) => {
+              // API'ye erişilemiyorsa...
               this.errorService.errorHandler(2);
-            } else {
-              // Kayıt başarılıysa
-              this.successService.successHandler(203);
             }
-            
-          },
-          (err) => {
-            // API'ye erişilemiyorsa...
-            this.errorService.errorHandler(404);
-          }
-        );  
-      }
-
-
-
-     
-    
-  }
-
-  getFollow(id: number) {
-    return this.shareService.getFollowList(id).subscribe(
-      (data) => {
-        this.follow = data;
-        console.log(data);
+          );
+        
       },
       (err) => {
-        // API'ye erişilemiyorsa...
-        this.errorService.errorHandler(2);
+        this.errorService.errorHandler(404);
       }
-    )
+    );
   }
 
   exportData(){}
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
 }

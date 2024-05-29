@@ -18,6 +18,12 @@ export class SuccessService {
       case 202:
         this.swal.callToast('Kayıt işleminiz başarılı', 'success');
         break;
+      case 203:
+        this.swal.callToast('Takip listenize eklendi', 'success');
+        break;
+      case 204:
+        this.swal.callToast('Silme işleminiz başarılı', 'success');
+        break;
     }
   }
 }

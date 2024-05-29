@@ -18,6 +18,9 @@ export class ErrorService {
       case 2:
         this.swal.callToast('Verilerde bir hata oluştu', 'error');
         break;
+      case 3:
+        this.swal.callToast('Hisse takip listenizde mevcut', 'info');
+        break;
       case 404:
         this.swal.callToast('API adresi bulunamadı', 'error');
         break;
