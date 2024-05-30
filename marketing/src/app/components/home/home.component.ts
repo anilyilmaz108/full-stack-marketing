@@ -50,6 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public chartOptions: Partial<ChartOptions>;
   isLoading: boolean = false;
   constructor() {
+    var currentUser = this.authService.userValues();
     this.chartOptions = {
       series: [
         20, 40, 20, 10, 10
@@ -364,27 +365,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Bist100 Veri Arama
    searchDataBist(shareSymbol: string) : Observable<ShareModel>{
     return this.shareService.getShareById(shareSymbol);
-  }
-
-  // Yüzde hesaplama
-  calculatePriceToPercent(portfolio: PortfolioModel[], share: ShareModel[], data: number) : number{
-    let dolar = Number(this.portfolio[0].dolar);
-    let euro = Number(portfolio[0].euro);
-    let altin = Number(portfolio[0].altin);
-    let lira = Number(portfolio[0].lira);
-    let hisseValue = 0;
-    for (let index = 0; index < portfolio[0].hisse!.length; index++) {
-      const hisse = portfolio[0].hisse![index];
-      const lot = Number(portfolio[0].hisseLot![index]);
-      this.searchDataBist(hisse);
-      hisseValue += (Number(share[index].fiyat) * lot);
-    }
-    let res = 0;
-    let numerator = data;
-    let denominator = dolar + euro + altin + lira + hisseValue;
-    res = numerator / denominator;
-    console.log(res * 100);
-    return res * 100;
   }
 
   ngOnDestroy() {

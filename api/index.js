@@ -51,7 +51,7 @@ require("dotenv").config({
 });
 
 // Redis İşlemlerinde süre vermek için türetilebilir ttl1s, ttl1h, ttl1d e.g.
-const ttl5sn = 60 * 60 * 60;
+const ttl5sn = 1 * 1 * 60;
 
 // Express-Validation
 const validateUser = require("./middlewares/validators.middeware");
@@ -571,14 +571,6 @@ router.post("/createPortfolio", cors(corsOptions), async (req, res) => {
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
     );
     res.status(200).json(portfolioData);
-    // Redis SET
-    client
-      .set("Portfolio" + redisKey["user"], JSON.stringify(portfolioData), {
-        EX: ttl5sn,
-      })
-      .then(async (v) => {
-        console.log("SET ETME İŞLEMİ", v);
-      });
   } catch (error) {
     logger.logError(
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
@@ -598,37 +590,20 @@ router.post("/createPortfolio", cors(corsOptions), async (req, res) => {
 // User portfolio verilerini çekme
 router.get("/getPortfolio/:user", cors(corsOptions), async (req, res) => {
   const { user } = req.params;
-  client.get("Portfolio" + user).then(async (r) => {
-    if (r) {
-      console.log("isExist", r);
-      logger.logInfo(
-        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-      );
-      res.status(200).json([JSON.parse(r)]);
-    } else {
-      console.log("notExist", r);
-      try {
-        const findedData = await Portfolio.findOne({ where: { user: user } });
-        logger.logInfo(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-        );
-        res.status(200).json([findedData]);
+  try {
+    const findedData = await Portfolio.findOne({ where: { user: user } });
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json([findedData]);
 
-        // Eğer Redisde Yoksa Redise Eklesin. Bir Sonraki Aramalarda DB Çağırılmasın
-        client
-          .set("Portfolio" + user, JSON.stringify(findedData), { EX: ttl5sn })
-          .then(async (v) => {
-            console.log("SET ETME İŞLEMİ", v);
-          });
-      } catch (error) {
-        console.log("err", error);
-        logger.logError(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
-        );
-        res.status(500).json({ message: "Hata Gerçekleşti " });
-      }
-    }
-  });
+  } catch (error) {
+    console.log("err", error);
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti " });
+  }
   // #swagger.tags = ['Portfolio']
   // #swagger.summary = 'User IDye Göre Portfolio Listesi'
   // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
@@ -712,12 +687,7 @@ router.put("/updatePortfolio/:user", cors(corsOptions), async (req, res) => {
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
     );
     res.status(200).json(up);
-    // Redis SET
-    client
-      .set("Portfolio" + user, JSON.stringify(findedData), { EX: ttl5sn })
-      .then(async (v) => {
-        console.log("SET ETME İŞLEMİ", v);
-      });
+
   } catch (error) {
     logger.logError(
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `

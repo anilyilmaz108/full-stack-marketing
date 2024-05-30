@@ -1,1 +1,76 @@
-<p>portfolio works!</p>
+  <!--Create-Update Button-->
+  <button style="margin-right: 3%; float: right;"
+  type="button" (click)="updatePortfolio(portfolio[0])"
+  class="text-white h-9 flex justify-end bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+>
+  Güncelle
+</button>
+
+<div class="flex justify-center items-center mt-8 mb-4 pb-8">
+    <!--Portfolio Data Table-->
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        Hisse
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Fiyat
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Değişim
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Fark
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Son Veri
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of share" class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{item.hisse}}
+                    </th>
+                    <td class="px-6 py-4">
+                        {{item.sonFiyat}}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span *ngIf="!item.yuzde.includes('-')" class="text-green-500"
+                        >{{ item.yuzde }}%</span
+                      >
+                      <span *ngIf="item.yuzde.includes('-')" class="text-red-500"
+                        >{{ item.yuzde }}%</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span *ngIf="!item.fark.includes('-')" class="text-green-500"
+                        >{{ item.fark }}</span
+                      >
+                      <span *ngIf="item.fark.includes('-')" class="text-red-500"
+                        >{{ item.fark }}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        {{item.saat}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+  <!-- Line Chart -->
+  <div class="max-w-sm w-full mr-8 ml-8 bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6 hover:scale-105 duration-500">
+
+  <div id="chart">
+    <apx-chart *ngIf="isLoading"
+      [series]="temp"
+      [chart]="chartOptions.chart"
+      [labels]="tempLabel"
+      [responsive]="chartOptions.responsive!"
+      [colors]="chartOptions.colors!"
+    ></apx-chart>
+  </div>
+  </div>
+</div>
+
+

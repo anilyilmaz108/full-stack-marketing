@@ -169,7 +169,6 @@
         <ng-container matColumnDef="fav" stickyEnd>
           <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
           <td mat-cell *matCellDef="let element">
-          <!--(click)="deleteData(element)"-->
             <mat-icon
             (click)="createFollow(element, user.id, element.hisseSembolu)"
               class="text-red-700 hover:text-red-400 dark:hover:text-red-400"

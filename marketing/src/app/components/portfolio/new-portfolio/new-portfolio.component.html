@@ -1,0 +1,70 @@
+<div class="p-4">
+    <h1 *ngIf="this.data.id === null || this.data.id === undefined" class="mb-4 text-3xl flex items-center justify-center font-extrabold tracking-tight leading-none text-gray-900 md:text-4xl lg:text-5xl dark:text-white">Portföy Oluştur</h1>
+    <h1 *ngIf="this.data.id ==! null || this.data.id ==! undefined" class="mb-4 text-3xl flex items-center justify-center font-extrabold tracking-tight leading-none text-gray-900 md:text-4xl lg:text-5xl dark:text-white">Portföy Güncelle</h1>
+
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="max-w-sm mx-auto">
+        <!-- Usd -->
+        <div class="mb-5">
+          <label for="usd" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Dolar</label>
+          <input type="text" id="usd" placeholder="Dolar miktarınızı giriniz. Ör; 100" formControlName="dolar" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  />
+        </div>
+          <!-- Eur -->
+           <div class="mb-5">
+            <label for="euro" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Euro</label>
+            <input type="text" id="euro" placeholder="Euro miktarınızı giriniz. Ör; 100" formControlName="euro" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  />
+          </div>
+             <!-- Gold -->
+        <div class="mb-5">
+            <label for="altin" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Altın</label>
+            <input type="text" id="altin" placeholder="Altın miktarınızı giriniz. Ör; 100" formControlName="altin" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  />
+          </div>
+              <!-- Tl -->
+              <div class="mb-5">
+            <label for="lira" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Türk Lirası</label>
+            <input type="text" id="lira" placeholder="TL miktarınızı giriniz. Ör; 100" formControlName="lira" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  />
+          </div>
+
+          <div class="mb-5 flex justify-between align-baseline">
+            <label for="lira" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Eklemek için tıklayınız.</label>
+            <mat-icon (click)="addHisse()"
+            class="text-blue-700 ml-4 hover:text-blue-400 dark:hover:text-blue-400"
+            >add_box</mat-icon>         
+           </div>
+            <mat-divider style="margin: 5%;"></mat-divider>
+          <!--Hisse - Lot-->
+          <div formArrayName="hisse">
+             <div *ngFor="let item of hisse().controls; track item; let i = index" [formGroupName] = "i">
+                <div class="flex gap-8 columns-3">
+                  <div class="flex flex-row gap-4">
+                    <!-- Hisse -->
+              <div class="max-w-sm mx-auto">
+                <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Hisse</label>
+                <input type="text" id="hisseSymbol" placeholder="Ör; PGSUS" formControlName="hisseSymbol" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  required/>
+
+                <!--<select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                 <option selected>Hisse seçiniz</option>
+                 <option *ngFor="let shareItem of share" value={{shareItem.hisseSembolu}} formControlName="hisseSymbol" required>{{shareItem.hisseSembolu}}</option>
+               </select>-->
+              </div>
+ 
+                      <!-- Hisse Lot -->
+                   <div class="mb-5 ml-2">
+                       <label for="hisseLot" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lot</label>
+                       <input type="text" id="hisseLot" placeholder="Ör; 3" formControlName="hisseLot" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  required/>
+                     </div>
+ 
+                     <!--Delete-->
+                     <mat-icon (click)="removeHisse(i)" style="margin-top: 11%;"
+             class="text-red-700 ml-4 hover:text-red-400 dark:hover:text-red-400"
+             >delete</mat-icon>
+                 </div>
+                </div>
+             </div>
+              
+          </div>
+    
+        <!-- Button -->
+        <button [disabled]="!form.valid" type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Kaydet</button>
+      </form>
+</div>  

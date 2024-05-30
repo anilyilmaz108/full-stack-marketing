@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { initFlowbite } from 'flowbite';
-import { map } from 'rxjs';
+import { map, take } from 'rxjs';
 import { NewsModel } from 'src/app/models/news.model';
 import { SharedModule } from 'src/app/modules/shared.module';
 import { AuthService } from 'src/app/services/auth.service';
@@ -62,7 +62,7 @@ export class NewsComponent implements OnInit {
 
   // Teknoloji Haberleri
   getTech() {
-    this.newsService.getTech().subscribe((data) => {
+    this.newsService.getTech().pipe(take(1)).subscribe((data) => {
       this.tech = data;
     });
   }

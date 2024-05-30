@@ -19,7 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import {MatSortModule} from '@angular/material/sort';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { RouterModule } from '@angular/router';
-
+import {MatDividerModule} from '@angular/material/divider';
 
 
 
@@ -47,6 +47,7 @@ import { RouterModule } from '@angular/router';
     MatSortModule,
     NgApexchartsModule,
     RouterModule,
+    MatDividerModule
   ],
   exports: [
     CommonModule,
@@ -70,6 +71,7 @@ import { RouterModule } from '@angular/router';
     MatSortModule,
     NgApexchartsModule,
     RouterModule,
+    MatDividerModule
   ]
 })
 export class SharedModule { }

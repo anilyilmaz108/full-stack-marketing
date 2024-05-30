@@ -17,8 +17,7 @@ import { SuccessService } from 'src/app/services/success.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent implements OnInit {
-  constructor() {}
+export class LoginComponent {
   fb = inject(FormBuilder);
   http = inject(HttpClient);
   router = inject(Router);

@@ -14,6 +14,7 @@ import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient);
@@ -33,6 +34,7 @@ interface NgxSpinnerConfig {
     AppRoutingModule,
     RouterModule,
     SharedModule,
+    CommonModule,
     NgApexchartsModule,
     HttpClientModule,
     TranslateModule.forRoot({
