@@ -140,11 +140,9 @@ export class PortfolioComponent implements OnInit {
               .subscribe({
                 next: (data) => {
                   this.share = data;
-                  //debugger;
                   setTimeout(() => {
                     this.shareArr.push(this.share[index].fiyat);
                     this.shareLotArr.push(this.portfolio[0].hisseLot![index]);
-                    //debugger;
                     this.tempLabel.push(this.share[index].hisse);
                     this.temp.push(
                       Number(this.share[0].fiyat) *
@@ -159,7 +157,6 @@ export class PortfolioComponent implements OnInit {
                   //console.log(this.tempLabel);
                 },
               });
-            //debugger;
           }
         },
         complete: () => {

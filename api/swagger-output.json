@@ -30,7 +30,7 @@
           "Auth"
         ],
         "summary": "Login İşlemi",
-        "description": "Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.",
+        "description": "DB kontrolü ile giriş yapılır.",
         "parameters": [
           {
             "name": "Auth",
@@ -65,7 +65,7 @@
           "Auth"
         ],
         "summary": "Register İşlemi",
-        "description": "Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir.",
+        "description": "Veriler DBye kaydedilir.",
         "parameters": [
           {
             "name": "Auth",
@@ -103,7 +103,7 @@
           "User"
         ],
         "summary": "User Oluşturma",
-        "description": "Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir. Register işlemi ile farkı role verisi default olarak user gelir fakat bu işlemde rol de verilir. ",
+        "description": "Veriler DBye kaydedilir. Register işlemi ile farkı role verisi default olarak user gelir fakat bu işlemde rol de verilir. ",
         "parameters": [
           {
             "name": "Auth",
@@ -141,7 +141,7 @@
           "User"
         ],
         "summary": "Tüm User Verilerini Okuma",
-        "description": "Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.",
+        "description": "DB kontrolü ile user verileri listelenir.",
         "responses": {
           "200": {
             "description": "OK"
@@ -158,7 +158,7 @@
           "User"
         ],
         "summary": "User Verilerini IDye Göre Okuma",
-        "description": "Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.",
+        "description": "DB kontrolü ile giriş yapılır.",
         "parameters": [
           {
             "name": "userId",
@@ -190,7 +190,7 @@
           "User"
         ],
         "summary": "IDye Göre User Silme",
-        "description": "Veriler DB ve Cacheden Silinir.",
+        "description": "Veriler DBden Silinir.",
         "parameters": [
           {
             "name": "userId",
@@ -204,6 +204,53 @@
             "description": "User IDye Göre İşlem Yapılır.",
             "required": true,
             "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/updateUser/{user}": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "User Güncelleme",
+        "description": "Veriler DBye kaydedilir.",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Portfolio",
+            "in": "path",
+            "description": "Int tipinde userID verisi kullanılmaktadır.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                }
+              }
+            }
           }
         ],
         "responses": {

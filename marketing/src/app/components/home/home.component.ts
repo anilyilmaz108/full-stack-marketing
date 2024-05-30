@@ -52,6 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   constructor() {
     var currentUser = this.authService.userValues();
+    console.log(currentUser);
     this.chartOptions = {
       series: [
         20, 40, 20, 10, 10
@@ -329,7 +330,6 @@ export class HomeComponent implements OnInit, OnDestroy {
               setTimeout(()=>{     
                 this.shareArr.push(this.share[index].fiyat);
                 this.shareLotArr.push(this.portfolio[0].hisseLot![index]);
-                //debugger;
                 this.tempLabel.push(this.share[index].hisse);
                 this.temp.push(Number(this.share[0].fiyat) * Number(item[0].hisseLot![index]));
                 console.log(this.share[index].hisse);          
@@ -338,16 +338,9 @@ export class HomeComponent implements OnInit, OnDestroy {
             },
             complete: () => {
               this.spinner.hide('home');
-              //console.log(this.temp);
-              //console.log(this.tempLabel);  
-   
             }
-          });
-          //debugger;
-          
+          });          
         }
-      
-        
       },
       complete: () => {
         setTimeout(()=>{     

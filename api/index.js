@@ -93,38 +93,20 @@ router.post(
       console.log("Hash Password:", constants.hashToPassword(password));
       client.get("User" + email + password).then(async (r) => {
         if (errors.isEmpty()) {
-          if (r) {
-            console.log("isExist", r);
-            logger.logInfo(
-              `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+          try {
+            const findedData = await User.findOne(
+              { where: { email: email } },
+              { where: { password: password } }
             );
-            res.status(200).json(JSON.parse(r));
-          } else {
-            console.log("notExist", r);
-            try {
-              const findedData = await User.findOne(
-                { where: { email: email } },
-                { where: { password: password } }
-              );
-              logger.logInfo(
-                `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı. girilen mail: ${email} girilen password: ${password}`
-              );
-              res.status(200).json(findedData);
-
-              // Eğer Redisde Yoksa Redise Eklesin. Bir Sonraki Aramalarda DB Çağırılmasın
-              client
-                .set("User" + email + password, JSON.stringify(findedData), {
-                  EX: ttl5sn,
-                })
-                .then(async (v) => {
-                  console.log("SET ETME İŞLEMİ", v);
-                });
-            } catch (error) {
-              logger.logError(
-                `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
-              );
-              res.status(500).json({ message: "Hata Gerçekleşti " });
-            }
+            logger.logInfo(
+              `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı. girilen mail: ${email} girilen password: ${password}`
+            );
+            res.status(200).json(findedData);
+          } catch (error) {
+            logger.logError(
+              `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
+            );
+            res.status(500).json({ message: "Hata Gerçekleşti " });
           }
         } else {
           res.status(500).json({ message: "Hatalı Giriş" });
@@ -140,7 +122,7 @@ router.post(
       );
     }
     // #swagger.summary = 'Login İşlemi'
-    // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
+    // #swagger.description = 'DB kontrolü ile giriş yapılır.'
     /*  #swagger.parameters['Auth'] = {
         in: 'body',
         description: 'String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır.',
@@ -167,21 +149,10 @@ router.post(
           { logging: true }
         );
         const jsonData = JSON.stringify(userData);
-        const redisKey = JSON.parse(jsonData);
         logger.logInfo(
           `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı. girilen mail: ${email} girilen password: ${password}`
         );
         res.status(200).json(userData);
-        // Redis SET
-        client
-          .set(
-            "User" + redisKey["email"] + redisKey["password"],
-            JSON.stringify(userData),
-            { EX: ttl5sn }
-          )
-          .then(async (v) => {
-            console.log("SET ETME İŞLEMİ", v);
-          });
       } catch (error) {
         logger.logError(
           `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${errors} girilen mail: ${email} girilen password: ${password}`
@@ -195,7 +166,7 @@ router.post(
       res.status(400).json(errors.array({ onlyFirstError: false }));
     }
     // #swagger.summary = 'Register İşlemi'
-    // #swagger.description = 'Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir.'
+    // #swagger.description = 'Veriler DBye kaydedilir.'
     /*  #swagger.parameters['Auth'] = {
         in: 'body',
         description: 'String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır.',
@@ -216,18 +187,10 @@ router.post("/createUser", cors(corsOptions), async (req, res) => {
       },
       { logging: true }
     );
-    const jsonData = JSON.stringify(userData);
-    const redisKey = JSON.parse(jsonData);
     logger.logInfo(
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
     );
     res.status(200).json(userData);
-    // Redis SET
-    client
-      .set("User" + redisKey["id"], JSON.stringify(userData), { EX: ttl5sn })
-      .then(async (v) => {
-        console.log("SET ETME İŞLEMİ", v);
-      });
   } catch (error) {
     logger.logError(
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
@@ -237,7 +200,7 @@ router.post("/createUser", cors(corsOptions), async (req, res) => {
   }
   // #swagger.tags = ['User']
   // #swagger.summary = 'User Oluşturma'
-  // #swagger.description = 'Veriler DBye kaydedilir. Kayıt işlemi sonrasında Cache içine de eklenir. Register işlemi ile farkı role verisi default olarak user gelir fakat bu işlemde rol de verilir. '
+  // #swagger.description = 'Veriler DBye kaydedilir. Register işlemi ile farkı role verisi default olarak user gelir fakat bu işlemde rol de verilir. '
   /*  #swagger.parameters['Auth'] = {
         in: 'body',
         description: 'String tipinde email ile password verisi kullanılmaktadır. Middeware içindeki validation kurallarına uyma kontrolü yapılır.',
@@ -246,89 +209,45 @@ router.post("/createUser", cors(corsOptions), async (req, res) => {
 
 // Bütün Userları Listeleme + Redis
 router.get("/getAllUser", cors(corsOptions), async (req, res) => {
-  let keys = [];
-  await client.keys("*").then(async (r) => {
-    keys = r;
-    console.log("KEY LIST", keys);
-  });
-  if (keys.length > 0) {
-    console.log("isExist", keys.length);
+  try {
+    // attributes kullanarak filtreleme yapılabilir
+    // kullanılmazsa tüm veriler gelir
+    const response = await User.findAll({
+      // attributes: ['user_id', 'testMail','12345678']
+    });
     logger.logInfo(
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
     );
-    await client.mGet(keys).then(async (reply) => {
-      let str = "[" + reply + "]";
-      res.status(200).json(JSON.parse(str));
-    });
-  } else {
-    console.log("NotExist", keys);
-    try {
-      // attributes kullanarak filtreleme yapılabilir
-      // kullanılmazsa tüm veriler gelir
-      const response = await User.findAll({
-        // attributes: ['user_id', 'testMail','12345678']
-      });
-      logger.logInfo(
-        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-      );
-      res.status(200).json(response);
-      // Redis MSET
-      const records = {};
-      response.forEach((element) => {
-        records["User" + element.email + element.password] =
-          JSON.stringify(element);
-      });
-      client.mSet(records, { EX: ttl5sn }).then(async (v) => {
-        console.log("SET ETME İŞLEMİ", v);
-      });
-    } catch (error) {
-      logger.logError(
-        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
-      );
-      res.status(500).json({ message: "Hata Gerçekleşti" });
-    }
+    res.status(200).json(response);
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti" });
   }
   // #swagger.tags = ['User']
   // #swagger.summary = 'Tüm User Verilerini Okuma'
-  // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
+  // #swagger.description = 'DB kontrolü ile user verileri listelenir.'
 });
 
 // ID'ye Göre User Çekme
 router.get("/getUserById/:userId", cors(corsOptions), async (req, res) => {
   const { userId } = req.params;
-  client.get("User" + userId).then(async (r) => {
-    if (r) {
-      console.log("isExist", r);
-      logger.logInfo(
-        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-      );
-      res.status(200).json(JSON.parse(r));
-    } else {
-      console.log("notExist", r);
-      try {
-        const findedData = await User.findByPk(userId);
-        logger.logInfo(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-        );
-        res.status(200).json(findedData);
-
-        // Eğer Redisde Yoksa Redise Eklesin. Bir Sonraki Aramalarda DB Çağırılmasın
-        client
-          .set("User" + userId, JSON.stringify(findedData), { EX: ttl5sn })
-          .then(async (v) => {
-            console.log("SET ETME İŞLEMİ", v);
-          });
-      } catch (error) {
-        console.log("err", error);
-        logger.logError(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
-        );
-        res.status(500).json({ message: "Hata Gerçekleşti " });
-      }
-    }
-  });
+  try {
+    const findedData = await User.findByPk(userId);
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(findedData);
+  } catch (error) {
+    console.log("err", error);
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti " });
+  }
   // #swagger.summary = 'User Verilerini IDye Göre Okuma'
-  // #swagger.description = 'Cache kontrol edilir. Eğer Cachede veri bulunursa DBye bakmadan işlem yapılır. Yoksa DB kontrolü ile giriş yapılır.'
+  // #swagger.description = 'DB kontrolü ile giriş yapılır.'
   /*  #swagger.parameters['User'] = {
         in: 'path',
         description: 'User IDye Göre İşlem Yapılır.',
@@ -339,53 +258,69 @@ router.get("/getUserById/:userId", cors(corsOptions), async (req, res) => {
 // ID'ye Göre User Silme
 router.delete("/deleteUser/:userId", cors(corsOptions), async (req, res) => {
   const { userId } = req.params;
-  client.del("User" + userId).then(async (r) => {
-    if (r) {
-      console.log("isExist", r);
-      logger.logInfo(
-        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-      );
-      //res.status(200).json(JSON.parse(r))
-      try {
-        const user = await User.findByPk(userId);
-        const removedData = await user.destroy();
-        console.log("removedData", removedData);
-        logger.logInfo(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-        );
-        res.status(200).json(removedData);
-      } catch (error) {
-        logger.logError(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
-        );
-        res.status(500).json({ message: "Hata Gerçekleşti" });
-        console.log("err", error);
-      }
-    } else {
-      try {
-        const user = await User.findByPk(userId);
-        const removedData = await user.destroy();
-        console.log("removedData", removedData);
-        logger.logInfo(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-        );
-        res.status(200).json(removedData);
-      } catch (error) {
-        logger.logError(
-          `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
-        );
-        res.status(500).json({ message: "Hata Gerçekleşti" });
-        console.log("err", error);
-      }
-    }
-  });
+  try {
+    const user = await User.findByPk(userId);
+    const removedData = await user.destroy();
+    console.log("removedData", removedData);
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(removedData);
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti" });
+    console.log("err", error);
+  }
   // #swagger.tags = ['User']
   // #swagger.summary = 'IDye Göre User Silme'
-  // #swagger.description = 'Veriler DB ve Cacheden Silinir.'
+  // #swagger.description = 'Veriler DBden Silinir.'
   /*  #swagger.parameters['User'] = {
         in: 'path',
         description: 'User IDye Göre İşlem Yapılır.',
       } */
+});
+
+// ID'ye Göre User Güncelleme
+router.put("/updateUser/:user", cors(corsOptions), async (req, res) => {
+  const { user } = req.params;
+  const { email, password } = req.body;
+  try {
+    const findedData = await User.findOne({ where: { id: user } });
+    const up = await User.update(
+      {
+        email: email,
+        password: password,
+      },
+      { where: { id: user } },
+      { logging: true }
+    );
+    const findedNewData = await User.findOne({ where: { id: user } });
+    logger.logInfo(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+    );
+    res.status(200).json(findedNewData);
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti " });
+    console.log("err", error);
+  }
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'User Güncelleme'
+  // #swagger.description = 'Veriler DBye kaydedilir.'
+  /*  #swagger.parameters['Portfolio'] = [
+    {
+        in: 'path',
+        description: 'Int tipinde userID verisi kullanılmaktadır.',
+      },
+         {
+        in: 'body',
+        description: 'String tipinde email ve password verisi kullanılmaktadır.',
+      },
+  ] */
 });
 
 // Userın takip ettiği hisseler POST
@@ -561,7 +496,7 @@ router.post("/createPortfolio", cors(corsOptions), async (req, res) => {
         altin: altin,
         hisse: hisse,
         lira: lira,
-        hisseLot: hisseLot
+        hisseLot: hisseLot,
       },
       { logging: true }
     );
@@ -596,7 +531,6 @@ router.get("/getPortfolio/:user", cors(corsOptions), async (req, res) => {
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
     );
     res.status(200).json([findedData]);
-
   } catch (error) {
     console.log("err", error);
     logger.logError(
@@ -678,7 +612,7 @@ router.put("/updatePortfolio/:user", cors(corsOptions), async (req, res) => {
         altin: altin,
         hisse: hisse,
         lira: lira,
-        hisseLot: hisseLot
+        hisseLot: hisseLot,
       },
       { where: { user: user } },
       { logging: true }
@@ -686,8 +620,8 @@ router.put("/updatePortfolio/:user", cors(corsOptions), async (req, res) => {
     logger.logInfo(
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
     );
-    res.status(200).json(up);
-
+    const findeNewData = await Portfolio.findOne({ where: { user: user } });
+    res.status(200).json(findeNewData);
   } catch (error) {
     logger.logError(
       `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
@@ -815,7 +749,9 @@ router.get("/bist100/:share", cors(corsOptions), async (req, res) => {
       const hisse = share;
       const sonFiyat = $(`li[id=h_td_alis_id_${share}]`, html).text();
       const satisFiyat = $(`li[id=h_td_satis_id_${share}]`, html).text();
-      const fiyat = $(`li[id=h_td_fiyat_id_${share}]`, html).text().split(",")[0];
+      const fiyat = $(`li[id=h_td_fiyat_id_${share}]`, html)
+        .text()
+        .split(",")[0];
       const dusukFiyat = $(`li[id=h_td_dusuk_id_${share}]`, html).text();
       const ortalama = $(`li[id=h_td_aort_id_${share}]`, html).text();
       const yuzde = $(`li[id=h_td_yuzde_id_${share}]`, html).text();

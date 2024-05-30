@@ -45,4 +45,19 @@ export class AuthService {
       })
     );
   }
+
+  // User Güncelleme
+  updateUser(user: any, data: any): Observable<any> {
+    return this.httpClient.put(api + '/updateUser/' + user, data).pipe(
+      map((res) => {
+        this.userSubject.next(res);
+        return res;
+      })
+    );
+  }
+
+  // User Silme
+  public deleteUser(userId: any): Observable<any> {
+    return this.httpClient.delete(api + '/deleteUser/' + userId);
+  }
 }
