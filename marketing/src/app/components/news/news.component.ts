@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { initFlowbite } from 'flowbite';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { map, take } from 'rxjs';
 import { NewsModel } from 'src/app/models/news.model';
 import { SharedModule } from 'src/app/modules/shared.module';
@@ -18,7 +19,8 @@ export class NewsComponent implements OnInit {
   newsService = inject(NewsService);
   authService = inject(AuthService);
   typewriterService = inject(TypewriterService);
-
+  spinner = inject(NgxSpinnerService);
+  
   news!: NewsModel[];
   finance!: NewsModel[];
   tech!: NewsModel[];
@@ -32,11 +34,13 @@ export class NewsComponent implements OnInit {
   }
   ngOnInit(): void {
     initFlowbite();
+    this.spinner.show('news');
     this.getNews();
     this.getFinance();
     this.getTech();
     this.getCulture();
     this.getHealth();
+    this.spinner.hide('news');
   }
 
   titles = ['Piyasam Haberler'];

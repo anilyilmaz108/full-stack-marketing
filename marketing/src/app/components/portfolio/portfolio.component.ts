@@ -15,6 +15,7 @@ import { ShareService } from 'src/app/services/share.service';
 import { SuccessService } from 'src/app/services/success.service';
 import { NewPortfolioComponent } from './new-portfolio/new-portfolio.component';
 import { Router } from '@angular/router';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -42,6 +43,8 @@ export class PortfolioComponent implements OnInit {
   successService = inject(SuccessService);
   errorService = inject(ErrorService);
   router = inject(Router);
+  spinner = inject(NgxSpinnerService);
+
   constructor(public dialog: MatDialog) {
     this.chartOptions = {
       series: [20, 40, 20, 10, 10],
@@ -85,6 +88,7 @@ export class PortfolioComponent implements OnInit {
 
   ngOnInit(): void {
     initFlowbite();
+    this.spinner.show('portfolio');
     var currentUser = this.authService.userValues();
     this.getPortfolio(currentUser.id!);
     this.user = currentUser.id;
@@ -150,6 +154,7 @@ export class PortfolioComponent implements OnInit {
                   }, 5000);
                 },
                 complete: () => {
+                  this.spinner.hide('portfolio');
                   //console.log(this.temp);
                   //console.log(this.tempLabel);
                 },

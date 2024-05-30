@@ -28,6 +28,7 @@ import { PortfolioService } from 'src/app/services/portfolio.service';
 import { ShareService } from 'src/app/services/share.service';
 import { SuccessService } from 'src/app/services/success.service';
 import { ChartComponent } from "ng-apexcharts";
+import { NgxSpinnerService } from 'ngx-spinner';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -83,7 +84,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   portfolioService = inject(PortfolioService);
   authService = inject(AuthService);
   shareService = inject(ShareService);
-
+  spinner = inject(NgxSpinnerService);
+  
   subscriptionBist!: Subscription;
   subscriptionDolar!: Subscription;
   subscriptionEuro!: Subscription;
@@ -115,6 +117,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     initFlowbite();
+    this.spinner.show('home');
     var currentUser = this.authService.userValues();
     this.getPortfolio(currentUser.id!);
     this.getBistData();
@@ -122,7 +125,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.getEuroData();
     this.getAltinData();
     this.getNews();
-
     //this.getOneTimeDolar();
     //this.getOneTimeEuro();
     //this.getOneTimeGold();
@@ -335,7 +337,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           
             },
             complete: () => {
-             
+              this.spinner.hide('home');
               //console.log(this.temp);
               //console.log(this.tempLabel);  
    

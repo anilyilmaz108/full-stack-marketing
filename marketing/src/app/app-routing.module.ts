@@ -10,6 +10,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { ShareComponent } from './components/share/share.component';
 import { NewsComponent } from './components/news/news.component';
 import { FollowComponent } from './components/follow/follow.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 const routes: Routes = [
   {
@@ -36,6 +37,10 @@ const routes: Routes = [
       {
         path: 'follow',
         component: FollowComponent,
+      },
+      {
+        path: 'profile',
+        component: ProfileComponent,
       },
     ],
   },

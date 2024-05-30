@@ -25,6 +25,8 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
   errorService = inject(ErrorService);
   successService = inject(SuccessService);
   authService = inject(AuthService);
+  spinner = inject(NgxSpinnerService);
+
   userID: any;
   share!: any[];
   dataSource!: MatTableDataSource<any>;
@@ -43,7 +45,6 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
   subscription!: Subscription;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  spinner = inject(NgxSpinnerService);
   constructor(public dialog: MatDialog) {
     var currentUser = this.authService.userValues();
     this.userID = currentUser.id;

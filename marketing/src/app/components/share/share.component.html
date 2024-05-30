@@ -1,16 +1,14 @@
 <!-- Content -->
 <div class="container p-4 md:p-6 xl:p-8 mx-auto max-w-screen-lg">
-  <div class="relative mb-16 mt-8" *ngIf="!share">
-    <ngx-spinner
-      type="ball-scale-multiple"
-      name="share"
-      bdColor="rgba(0, 0, 0, 0.8)"
-      size="medium"
-      color="#eeeeee"
-      [fullScreen]="false"
-    ></ngx-spinner>
-  </div>
-
+     <!--Spinner-->
+     <ngx-spinner
+     type="ball-scale-multiple"
+     name="share"
+     bdColor="rgba(0, 0, 0, 0.8)"
+     size="medium"
+     color="#03a9f4"
+     [fullScreen]="true"
+   ></ngx-spinner>
   <div class="relative p-4 overflow-x-auto shadow-md sm:rounded-lg">
     <div
       class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4"
