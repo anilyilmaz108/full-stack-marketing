@@ -4,19 +4,30 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { UserModel } from '../models/user.model';
+//import { LocalStorageService } from './local-storage.service';
+import { jwtDecode } from "jwt-decode";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private userInfo: any;
   public user?: Observable<UserModel>;
   private userSubject: BehaviorSubject<any>;
+
   httpClient = inject(HttpClient);
   router = inject(Router);
+  //localStorage = inject(LocalStorageService);
 
   constructor() {
-    this.userSubject = new BehaviorSubject<any>(this.user);
+    const token = localStorage.getItem('currentUser');
+    console.log('TOKEN', token);
+    this.userInfo = this.setUserInfo(token);
+    console.log('USER INFO', this.userInfo);
+    this.userSubject = new BehaviorSubject<any>(this.userInfo);
+    console.log('USER SUBJ', this.userSubject);
     this.user = this.userSubject.asObservable();
+    console.log('USER ___', this.user);
   }
 
   // User Bilgileri
@@ -27,8 +38,12 @@ export class AuthService {
   // Apiden login olma işlemi
   loginByApi(data: any): Observable<any> {
     return this.httpClient.post(`${api}/login`, data).pipe(
-      map((res) => {
-        this.userSubject.next(res);
+      map((res:any) => {
+        //this.localStorage.removeData('currentUser');
+        this.userInfo = this.setUserInfo(res);
+        this.userSubject.next(this.userInfo);
+        localStorage.setItem('currentUser', `${JSON.stringify(res)}`);
+        console.log('VERİLEN TOKEN', localStorage.getItem('currentUser'));
         this.router.navigateByUrl('/');
         return res;
       })
@@ -50,7 +65,9 @@ export class AuthService {
   updateUser(user: any, data: any): Observable<any> {
     return this.httpClient.put(api + '/updateUser/' + user, data).pipe(
       map((res) => {
+        //this.localStorage.removeData('currentUser');
         this.userSubject.next(res);
+        //this.localStorage.saveData('currentUser', JSON.stringify(res));
         return res;
       })
     );
@@ -60,4 +77,34 @@ export class AuthService {
   public deleteUser(userId: any): Observable<any> {
     return this.httpClient.delete(api + '/deleteUser/' + userId);
   }
+
+  // User Logout
+  logout() {
+    // remove user from local storage to log user out
+    localStorage.removeItem('currentUser');
+    this.router.navigateByUrl('/login');
+}
+
+setUserInfo(token: any) {
+  token = localStorage.getItem('currentUser');
+  console.log('122', JSON.stringify(token));
+  console.log('123', JSON.parse(token));
+  const payload = JSON.parse(token);
+  if(token != null) {   
+    const id = Number(payload.id); 
+    const email = payload.email;
+    const password = payload.password;
+    const role = payload.role;
+    const createdAt = payload.createdAt;
+    const updatedAt = payload.updatedAt;
+    const version = payload.version;
+    return {
+      id,email,password,role,createdAt,updatedAt,version
+    };  
+  } else {
+    //this.localStorage.removeData('currentUser');
+    return null;  
+  }
+}
+
 }

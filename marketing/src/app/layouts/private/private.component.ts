@@ -4,6 +4,7 @@ import { TranslationService } from 'src/app/services/translation.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { initFlowbite } from 'flowbite';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-private',
@@ -25,6 +26,7 @@ export class PrivateComponent implements OnInit{
   tranlationService = inject(TranslationService);
   router = inject(Router);
   themeService = inject(ThemeService);
+  authService = inject(AuthService);
 
   lang: string = "TR";
 
@@ -41,7 +43,7 @@ export class PrivateComponent implements OnInit{
   }
 
   logout(){
-    this.router.navigateByUrl('/login');
+    this.authService.logout();
   }
 
 }
