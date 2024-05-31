@@ -88,7 +88,7 @@ export class PortfolioComponent implements OnInit {
 
   ngOnInit(): void {
     initFlowbite();
-    this.spinner.show('portfolio');
+    this.portfolio[0] != null ? this.spinner.show('portfolio') : null;
     var currentUser = this.authService.userValues();
     this.getPortfolio(currentUser.id!);
     this.user = currentUser.id;
@@ -171,24 +171,22 @@ export class PortfolioComponent implements OnInit {
 
   // Portfolyo Güncelleme
   updatePortfolio(data:any){
-  /*
-    if(!this.portfolio == undefined || !this.portfolio == null){
-      data = this.portfolio;
+    if(this.portfolio == undefined || this.portfolio == null){
+      data = null;
     }
-  */
-    const dialogRef = this.dialog.open(NewPortfolioComponent, {
-      width: '380px',
-      height: '100%',
-      // disableClose: true,
-       data: { data },
-    });
-    dialogRef.afterClosed().subscribe((res) => {
-      if(res == "success"){
-        this.getPortfolio(Number(data.user));
-        this.successService.successHandler(200);
-      } else {
-        //this.errorService.errorHandler(4);
-      }
-    });
+      const dialogRef = this.dialog.open(NewPortfolioComponent, {
+        width: '380px',
+        height: '100%',
+        // disableClose: true,
+        data: { data },
+      });
+      dialogRef.afterClosed().subscribe((res) => {
+        if(res == "success"){
+          this.getPortfolio(Number(this.user));
+          this.successService.successHandler(200);
+        } else {
+          //this.errorService.errorHandler(4);
+        }
+      });
   }
 }

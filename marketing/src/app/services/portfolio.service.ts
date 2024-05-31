@@ -31,4 +31,14 @@ export class PortfolioService {
       })
     );
   }
+
+  // Portfolio Oluşturma
+  createPortfolio(data: any): Observable<any> {
+    return this.httpClient.post(`${api}/createPortfolio`, data).pipe(
+      map((res) => {
+        this.shareSubject.next(res);
+        return res;
+      })
+    );
+  }
 }

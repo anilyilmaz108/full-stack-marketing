@@ -99,16 +99,41 @@ export class NewPortfolioComponent {
       "lira": rawForm.lira,
       "hisseLot": lotArr 
     };
-     this.portfolioService.updatePortfolio(this.user, body).subscribe(
-        (res) => {
-          if (res){
-            this.dialogRef.close('success');
-          }
-        },
-        (err) => {
-          //this.errorService.errorHandler(1)
+
+    console.log('DATA', this.data);
+    if(this.data[0] == null || this.data[0] == undefined) {
+      console.log('DATA', this.data)
+      console.log('Body', body);
+    // Portfolio Oluşturma
+    this.portfolioService.createPortfolio(body).subscribe(
+      (res) => {
+        console.log()
+        if (res){
+          console.log('RES', res);
+          this.dialogRef.close('success');
         }
-      ); 
+      },
+      (err) => {
+        //this.errorService.errorHandler(1)
+      }
+    ); 
+    } else {
+   // Portfolio Güncelleme
+   this.portfolioService.updatePortfolio(this.user, body).subscribe(
+    (res) => {
+      if (res){
+        this.dialogRef.close('success');
+      }
+    },
+    (err) => {
+      //this.errorService.errorHandler(1)
+    }
+  ); 
+
+    }
+
+ 
+  
   }
 
   //https://medium.com/@stream2085/angular-form-array-an-easy-guide-1823a5bc6f3f

@@ -126,6 +126,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.getEuroData();
     this.getAltinData();
     this.getNews();
+    this.spinner.hide('home');
     //this.getOneTimeDolar();
     //this.getOneTimeEuro();
     //this.getOneTimeGold();
@@ -326,7 +327,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           ).subscribe({
             next: (data) => {
               this.share = data;             
-              //debugger;
               setTimeout(()=>{     
                 this.shareArr.push(this.share[index].fiyat);
                 this.shareLotArr.push(this.portfolio[0].hisseLot![index]);
@@ -337,19 +337,15 @@ export class HomeComponent implements OnInit, OnDestroy {
           
             },
             complete: () => {
-              this.spinner.hide('home');
+              
             }
           });          
         }
       },
       complete: () => {
         setTimeout(()=>{     
-          console.log(this.shareArr);
-          console.log(this.shareLotArr);   
+          console.log(this.portfolio);
             this.isLoading = true
-            
-          
-          
       }, 10000);
    
       }
