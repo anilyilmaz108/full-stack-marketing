@@ -44,6 +44,7 @@ export class ProfileComponent {
         next: (item) => {
           this.portfolio = item;
         },
+        error: (err) => {}
       });
   }
 
