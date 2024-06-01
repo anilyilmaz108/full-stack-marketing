@@ -10,7 +10,7 @@
 
 <!-- Alert -->
 <div
-  *ngIf="portfolio[0] == null"
+  *ngIf="isLoading"
   id="alert-1"
   class="flex items-center p-4 m-8 text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
   role="alert"
@@ -520,7 +520,7 @@
     <!-- Line Chart -->
     <div id="chart">
       <apx-chart
-        *ngIf="isLoading"
+        *ngIf="isChartLoading"
         [series]="temp"
         [chart]="chartOptions.chart"
         [labels]="tempLabel"

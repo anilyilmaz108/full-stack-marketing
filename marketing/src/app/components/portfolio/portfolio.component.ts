@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { initFlowbite } from 'flowbite';
 import { ChartComponent } from 'ng-apexcharts';
-import { Observable, timeout } from 'rxjs';
+import { Observable, first, timeout } from 'rxjs';
 import { PortfolioModel } from 'src/app/models/portfolio.model';
 import { ShareModel } from 'src/app/models/share.model';
 import { SharedModule } from 'src/app/modules/shared.module';
@@ -113,9 +113,7 @@ export class PortfolioComponent implements OnInit {
     this.portfolioService
       .getPortfolio(user)
       .pipe(
-        timeout({
-          each: 1000,
-        })
+        first()
       )
       .subscribe({
         next: (item) => {
@@ -133,9 +131,7 @@ export class PortfolioComponent implements OnInit {
             var lot = Number(item[0].hisseLot![index]);
             this.searchDataBist(hisse)
               .pipe(
-                timeout({
-                  each: 3000,
-                })
+                first()
               )
               .subscribe({
                 next: (data) => {
@@ -149,7 +145,7 @@ export class PortfolioComponent implements OnInit {
                         Number(item[0].hisseLot![index])
                     );
                     console.log(this.share[index].hisse);
-                  }, 5000);
+                  }, 2000);
                 },
                 complete: () => {
                   this.spinner.hide('portfolio');
@@ -164,21 +160,19 @@ export class PortfolioComponent implements OnInit {
             console.log(this.shareArr);
             console.log(this.shareLotArr);
             this.isLoading = true;
-          }, 10000);
+          }, 3000);
         },
       });
   }
 
   // Portfolyo Güncelleme
   updatePortfolio(data:any){
-    if(this.portfolio == undefined || this.portfolio == null){
-      data = null;
-    }
+    console.log('FF', data);
       const dialogRef = this.dialog.open(NewPortfolioComponent, {
         width: '380px',
         height: '100%',
         // disableClose: true,
-        data: { data },
+        data: data ,
       });
       dialogRef.afterClosed().subscribe((res) => {
         if(res == "success"){

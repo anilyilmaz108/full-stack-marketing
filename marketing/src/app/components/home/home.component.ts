@@ -6,6 +6,7 @@ import {
   Subscription,
   catchError,
   filter,
+  first,
   of,
   repeat,
   switchMap,
@@ -50,6 +51,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions: Partial<ChartOptions>;
   isLoading: boolean = false;
+  isChartLoading: boolean = false;
   constructor() {
     var currentUser = this.authService.userValues();
     console.log(currentUser);
@@ -126,7 +128,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.getEuroData();
     this.getAltinData();
     this.getNews();
-    this.spinner.hide('home');
     //this.getOneTimeDolar();
     //this.getOneTimeEuro();
     //this.getOneTimeGold();
@@ -301,56 +302,74 @@ export class HomeComponent implements OnInit, OnDestroy {
   shareArr: any = [];
   shareLotArr: any = [];
   // Portfolio
-  getPortfolio(user: number){
-    this.portfolioService.getPortfolio(user).pipe(
-      timeout({
-        each: 1000,
-      })
-    ).subscribe({
-      next: (item) => {
-        this.portfolio = item;
-        this.temp.push(Number(item[0].dolar) * this.usd);
-        this.tempLabel.push("USD");
-        this.temp.push(Number(item[0].euro) * this.eur);
-        this.tempLabel.push("EUR");
-        this.temp.push(Number(item[0].altin) * this.gold);
-        this.tempLabel.push("XAU");
-        this.temp.push(Number(item[0].lira));
-        this.tempLabel.push("TL");
-        for (let index = 0; index < item[0].hisse!.length; index++) {
-          var hisse = item[0].hisse![index];
-          var lot = Number(item[0].hisseLot![index]);
-          this.searchDataBist(hisse).pipe(
-            timeout({
-              each: 3000,
-            })
-          ).subscribe({
-            next: (data) => {
-              this.share = data;             
-              setTimeout(()=>{     
-                this.shareArr.push(this.share[index].fiyat);
-                this.shareLotArr.push(this.portfolio[0].hisseLot![index]);
-                this.tempLabel.push(this.share[index].hisse);
-                this.temp.push(Number(this.share[0].fiyat) * Number(item[0].hisseLot![index]));
-                console.log(this.share[index].hisse);          
-            }, 5000);
-          
-            },
-            complete: () => {
-              
-            }
-          });          
-        }
-      },
-      complete: () => {
-        setTimeout(()=>{     
-          console.log(this.portfolio);
-            this.isLoading = true
-      }, 10000);
-   
-      }
-    });
-
+  getPortfolio(user: number) {
+    this.tempLabel = [];
+    this.temp= [];
+    this.portfolio= [];
+    this.shareArr= [];
+    this.shareLotArr= [];
+    this.share= [];
+    this.portfolioService
+      .getPortfolio(user)
+      .pipe(
+        first()
+      )
+      .subscribe({
+        next: (item) => {
+          this.portfolio = item;
+          this.isLoading = true;
+          this.isChartLoading = false;
+          if(item == null) {
+            this.spinner.hide('home');
+          } else {
+                this.temp.push(Number(item[0].dolar) * this.usd);
+          this.tempLabel.push('USD');
+          this.temp.push(Number(item[0].euro) * this.eur);
+          this.tempLabel.push('EUR');
+          this.temp.push(Number(item[0].altin) * this.gold);
+          this.tempLabel.push('XAU');
+          this.temp.push(Number(item[0].lira));
+          this.tempLabel.push('TL');
+          for (let index = 0; index < item[0].hisse!.length; index++) {
+            var hisse = item[0].hisse![index];
+            var lot = Number(item[0].hisseLot![index]);
+            this.searchDataBist(hisse)
+              .pipe(
+                first()
+              )
+              .subscribe({
+                next: (data) => {
+                  this.share = data;
+                  setTimeout(() => {
+                    this.shareArr.push(this.share[index].fiyat);
+                    this.shareLotArr.push(this.portfolio[0].hisseLot![index]);
+                    this.tempLabel.push(this.share[index].hisse);
+                    this.temp.push(
+                      Number(this.share[0].fiyat) *
+                        Number(item[0].hisseLot![index])
+                    );
+                    console.log(this.share[index].hisse);
+                  }, 2000);
+                },
+                complete: () => {
+                  this.isLoading = false;
+                  //console.log(this.temp);
+                  //console.log(this.tempLabel);
+                },
+              });
+          }
+          }
+        },
+        complete: () => {
+          setTimeout(() => {
+            console.log(this.shareArr);
+            console.log(this.shareLotArr);
+            this.isChartLoading = true;
+            this.spinner.hide('home');
+          }, 3000);
+        },
+        error: () => {}
+      });
   }
 
   // Bist100 Veri Arama
