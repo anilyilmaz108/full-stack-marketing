@@ -13,9 +13,18 @@ app.use((req, res, next) => {
     "http://localhost:8001",
     "http://localhost:3307",
   ]);
-  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  next();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Request-Method', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Type');
+
+  if(req.method === 'OPTIONS') {
+    res.writeHead(200);
+    return res.end();
+  } else {
+    return next();
+  }
 });
 
 var corsOptions = {
@@ -50,6 +59,9 @@ require("dotenv").config({
   override: true,
 });
 
+// Nodemailer
+const nodemailer = require("nodemailer");
+
 // Redis İşlemlerinde süre vermek için türetilebilir ttl1s, ttl1h, ttl1d e.g.
 const ttl5sn = 1 * 1 * 60;
 
@@ -67,6 +79,7 @@ const Gold = require("./models/gold-model");
 const Share = require("./models/share-model");
 const Follow = require("./models/follow-model");
 const Portfolio = require("./models/portfolio-model");
+const { info } = require("winston");
 
 // Livedata Listeleri
 const data = [];
@@ -1089,6 +1102,60 @@ router.get("/health", cors(corsOptions), async (req, res) => {
   // #swagger.summary = 'Günlük Sağlık Haberleri'
   // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
 });
+
+//Nodemailer
+router.post("/sendmail", async (req, res) => {
+  let user = req.body;
+  try {
+    sendMail(user, (info) => {
+      console.log(`The mail has beed send 😃 and the id is ${info.messageId}`);
+      logger.logInfo(
+        `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+      );
+      res.status(200).json("success");
+    });
+  } catch (error) {
+    logger.logError(
+      `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+    );
+    res.status(500).json({ message: "Hata Gerçekleşti" });
+    console.log("err", error);
+  }
+  // #swagger.tags = ['Mail']
+  // #swagger.summary = 'İletişim Form Maili'
+  // #swagger.description = 'Client tarafında gönderilen iletişim formu için kullanılır.'
+  /*  #swagger.parameters['Mail'] = {
+        in: 'body',
+        description: 'String tipinde isim, email, konu ve mesaj verisi kullanılmaktadır.',
+      } */
+});
+
+async function sendMail(user, callback) {
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    //host: "smtp.gmail.com",
+    //port: 587,
+    //secure: false, // true for 465, false for other ports
+    service: "gmail",
+    auth: {
+      user: "anilyilmaz108@gmail.com",
+      pass: "iekv bcrn xkpe pywy",
+    },
+  });
+
+  let mailOptions = {
+    from: user.email, // sender address
+    to: '"Developer"<anilyilmaz108@gmail.com>', // list of receivers
+    subject: user.subject, // Subject line
+    html: `<h1>${user.name} tarafından gönderildi.</h1><br>
+    <h4>${user.message}</h4>`,
+  };
+
+  // send mail with defined transport object
+  let info = await transporter.sendMail(mailOptions);
+
+  callback(info);
+}
 
 // Redis'e Bağlanma
 const connectRedis = async () => {

@@ -706,6 +706,34 @@
           }
         }
       }
+    },
+    "/sendmail": {
+      "post": {
+        "tags": [
+          "Mail"
+        ],
+        "summary": "İletişim Form Maili",
+        "description": "Client tarafında gönderilen iletişim formu için kullanılır.",
+        "parameters": [
+          {
+            "name": "Mail",
+            "in": "body",
+            "description": "String tipinde isim, email, konu ve mesaj verisi kullanılmaktadır.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
     }
   }
 }

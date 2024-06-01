@@ -24,6 +24,9 @@ export class SuccessService {
       case 204:
         this.swal.callToast('Silme işleminiz başarılı', 'success');
         break;
+      case 205:
+        this.swal.callToast('Form bilgileri başarıyla gönderildi', 'success');
+        break;
     }
   }
 }

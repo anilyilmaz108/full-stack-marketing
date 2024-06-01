@@ -21,8 +21,17 @@ export class ErrorService {
       case 3:
         this.swal.callToast('Hisse takip listenizde mevcut', 'info');
         break;
-        case 4:
-        this.swal.callToast('Güncelleme işlemi sırasında bir hata oluştu', 'error');
+      case 4:
+        this.swal.callToast(
+          'Güncelleme işlemi sırasında bir hata oluştu',
+          'error'
+        );
+        break;
+      case 5:
+        this.swal.callToast(
+          'Form gönderme işlemi sırasında bir hata oluştu',
+          'error'
+        );
         break;
       case 404:
         this.swal.callToast('API adresi bulunamadı', 'error');
