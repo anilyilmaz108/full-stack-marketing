@@ -8,7 +8,7 @@ export class AuthGuard implements CanActivate {
   //state= inject(RouterStateSnapshot)
   authService = inject(AuthService);
   constructor() {
-    //this.authService.localStorage.removeData('currentUser');
+    //localStorage.removeItem('currentUser');
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {

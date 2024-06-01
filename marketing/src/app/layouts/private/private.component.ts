@@ -19,9 +19,12 @@ export class PrivateComponent implements OnInit{
 
   isDark = false;
   isDarkTheme!: Observable<boolean>;
+  user: any;
 
   constructor(){
     this.isDarkTheme = this.themeService.isDarkTheme;
+    var currentUser = this.authService.userValues();
+    this.user = currentUser;
   }
   tranlationService = inject(TranslationService);
   router = inject(Router);

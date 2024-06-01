@@ -39,7 +39,7 @@ export class AuthService {
   loginByApi(data: any): Observable<any> {
     return this.httpClient.post(`${api}/login`, data).pipe(
       map((res:any) => {
-        //this.localStorage.removeData('currentUser');
+        //localStorage.removeItem('currentUser');
         this.userInfo = this.setUserInfo(res);
         this.userSubject.next(this.userInfo);
         localStorage.setItem('currentUser', `${JSON.stringify(res)}`);
