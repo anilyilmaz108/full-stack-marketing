@@ -11,6 +11,7 @@ import { ShareComponent } from './components/share/share.component';
 import { NewsComponent } from './components/news/news.component';
 import { FollowComponent } from './components/follow/follow.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { PublicComponent } from './layouts/public/public.component';
 
 const routes: Routes = [
   {
@@ -45,13 +46,19 @@ const routes: Routes = [
     ],
   },
   {
-    path: 'login',
-    component: LoginComponent,
-  },
-  {
-    path: 'register',
-    component: RegisterComponent,
-  },
+    path: '',
+    component: PublicComponent,
+    children: [
+      {
+        path: 'login',
+        component: LoginComponent,
+      },
+      {
+        path: 'register',
+        component: RegisterComponent,
+      },
+    ],
+  }
 ];
 
 @NgModule({

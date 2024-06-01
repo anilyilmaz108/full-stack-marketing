@@ -15,6 +15,7 @@ import { AngularSvgIconModule } from 'angular-svg-icon';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { PublicComponent } from './layouts/public/public.component';
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient);
@@ -27,7 +28,8 @@ interface NgxSpinnerConfig {
 @NgModule({
   declarations: [
     AppComponent,
-    PrivateComponent
+    PrivateComponent,
+    PublicComponent
   ],
   imports: [
     BrowserModule,

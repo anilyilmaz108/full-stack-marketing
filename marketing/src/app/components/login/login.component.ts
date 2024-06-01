@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { SharedModule } from '../../modules/shared.module';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
