@@ -86,6 +86,10 @@ const data = [];
 const bist100Data = [];
 const market = [];
 const news = [];
+const finance = [];
+const tech = [];
+const culture = [];
+const health = [];
 
 app.get("/", (req, res) => {
   res.send("Welcome");
@@ -981,7 +985,7 @@ router.get("/news", cors(corsOptions), async (req, res) => {
 
 // Finans Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
 router.get("/finance", cors(corsOptions), async (req, res) => {
-  news.splice(0, news.length);
+  finance.splice(0, finance.length);
   axios
     .get("https://www.sondakika.com/finans/")
     .then((response) => {
@@ -996,13 +1000,13 @@ router.get("/finance", cors(corsOptions), async (req, res) => {
         // const imgArray = $('img', html).attr('alt');
         // console.log(imgArray);
 
-        news.push({
+        finance.push({
           saat,
           baslik,
           aciklama,
         });
       });
-      res.json(news);
+      res.json(finance);
     })
     .catch((err) => console.log(err));
   // #swagger.tags = ['News']
@@ -1012,7 +1016,7 @@ router.get("/finance", cors(corsOptions), async (req, res) => {
 
 // Finans Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
 router.get("/tech", cors(corsOptions), async (req, res) => {
-  news.splice(0, news.length);
+  tech.splice(0, tech.length);
   axios
     .get("https://www.sondakika.com/teknoloji/")
     .then((response) => {
@@ -1027,13 +1031,13 @@ router.get("/tech", cors(corsOptions), async (req, res) => {
         // const imgArray = $('img', html).attr('alt');
         // console.log(imgArray);
 
-        news.push({
+        tech.push({
           saat,
           baslik,
           aciklama,
         });
       });
-      res.json(news);
+      res.json(tech);
     })
     .catch((err) => console.log(err));
   // #swagger.tags = ['News']
@@ -1043,7 +1047,7 @@ router.get("/tech", cors(corsOptions), async (req, res) => {
 
 // Kültür-Sanat Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
 router.get("/culture", cors(corsOptions), async (req, res) => {
-  news.splice(0, news.length);
+  culture.splice(0, culture.length);
   axios
     .get("https://www.sondakika.com/kultur-sanat/")
     .then((response) => {
@@ -1058,13 +1062,13 @@ router.get("/culture", cors(corsOptions), async (req, res) => {
         // const imgArray = $('img', html).attr('alt');
         // console.log(imgArray);
 
-        news.push({
+        culture.push({
           saat,
           baslik,
           aciklama,
         });
       });
-      res.json(news);
+      res.json(culture);
     })
     .catch((err) => console.log(err));
   // #swagger.tags = ['News']
@@ -1074,7 +1078,7 @@ router.get("/culture", cors(corsOptions), async (req, res) => {
 
 // Sağlık Haberleri => Günlük değiştikleri için DB'ye atmaya gerek yok.
 router.get("/health", cors(corsOptions), async (req, res) => {
-  news.splice(0, news.length);
+  health.splice(0, health.length);
   axios
     .get("https://www.sondakika.com/saglik/")
     .then((response) => {
@@ -1089,13 +1093,13 @@ router.get("/health", cors(corsOptions), async (req, res) => {
         // const imgArray = $('img', html).attr('alt');
         // console.log(imgArray);
 
-        news.push({
+        health.push({
           saat,
           baslik,
           aciklama,
         });
       });
-      res.json(news);
+      res.json(health);
     })
     .catch((err) => console.log(err));
   // #swagger.tags = ['News']
@@ -1138,14 +1142,14 @@ async function sendMail(user, callback) {
     //secure: false, // true for 465, false for other ports
     service: "gmail",
     auth: {
-      user: "anilyilmaz108@gmail.com",
-      pass: "iekv bcrn xkpe pywy",
+      user: `${process.env.MAILUSER}`,
+      pass: `${process.env.MAILPASS}`,
     },
   });
 
   let mailOptions = {
     from: user.email, // sender address
-    to: '"Developer"<anilyilmaz108@gmail.com>', // list of receivers
+    to: `"Developer"<${process.env.TOMAIL}>`, // list of receivers
     subject: user.subject, // Subject line
     html: `<h1>${user.name} tarafından gönderildi.</h1><br>
     <h4>${user.message}</h4>`,

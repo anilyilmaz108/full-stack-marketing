@@ -8,6 +8,7 @@ import { ErrorService } from 'src/app/services/error.service';
 import { PortfolioService } from 'src/app/services/portfolio.service';
 import { SuccessService } from 'src/app/services/success.service';
 import { NewProfileComponent } from './new-profile/new-profile.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -24,6 +25,7 @@ export class ProfileComponent {
   portfolioService = inject(PortfolioService);
   successService = inject(SuccessService);
   errorService = inject(ErrorService);
+  router = inject(Router);
 
   user: any;
   portfolio: any;
@@ -70,6 +72,7 @@ export class ProfileComponent {
         (res) => {
             this.successService.successHandler(204);
             this.user = this.authService.userValues();
+            this.router.navigateByUrl('/');
         },
         (err) => {
           this.errorService.errorHandler(404);

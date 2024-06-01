@@ -52,14 +52,14 @@ export class NewsComponent implements OnInit {
 
   // Ekonomi Haberleri
   getNews() {
-    this.newsService.getNews().subscribe((data) => {
+    this.newsService.getNews().pipe(take(1)).subscribe((data) => {
       this.news = data;
     });
   }
 
   // Finans Haberleri
   getFinance() {
-    this.newsService.getFinance().subscribe((data) => {
+    this.newsService.getFinance().pipe(take(1)).subscribe((data) => {
       this.finance = data;
     });
   }
@@ -73,14 +73,14 @@ export class NewsComponent implements OnInit {
 
   // Kültür-Sanat Haberleri
   getCulture() {
-    this.newsService.getCulture().subscribe((data) => {
+    this.newsService.getCulture().pipe(take(1)).subscribe((data) => {
       this.culture = data;
     });
   }
 
   // Teknoloji Haberleri
   getHealth() {
-    this.newsService.getHealth().subscribe((data) => {
+    this.newsService.getHealth().pipe(take(1)).subscribe((data) => {
       this.health = data;
     });
   }
