@@ -12,6 +12,7 @@ import { NewsComponent } from './components/news/news.component';
 import { FollowComponent } from './components/follow/follow.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { PublicComponent } from './layouts/public/public.component';
+import { AboutComponent } from './components/about/about.component';
 
 const routes: Routes = [
   {
@@ -42,6 +43,10 @@ const routes: Routes = [
       {
         path: 'profile',
         component: ProfileComponent,
+      },
+      {
+        path: 'about',
+        component: AboutComponent,
       },
     ],
   },
