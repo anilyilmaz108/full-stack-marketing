@@ -44,11 +44,13 @@ export class NewPortfolioComponent {
     public dialogRef: MatDialogRef<NewPortfolioComponent>,
     public dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) {
+    var currentUser = this.authService.userValues();
+    this.user = currentUser.id; 
+   }
 
   ngOnInit(): void {
     initFlowbite();
-    console.log('GELEN DATA', this.data.id);
     var currentUser = this.authService.userValues();
     this.user = currentUser.id;
     this.buildForm();
@@ -64,15 +66,28 @@ export class NewPortfolioComponent {
   }
 
   buildForm() {
-    this.form = this.fb.group({
-      euro: new FormControl(this.data.euro),
-      dolar: new FormControl(this.data.dolar),
-      altin: new FormControl(this.data.altin),
-      hisse: this.fb.array([]),
-      lira: new FormControl(this.data.lira),
-      //hisseLot: new FormControl(''),
-      //hisseLot: this.fb.array([]),
-    });
+    if(this.data) {
+      this.form = this.fb.group({
+        euro: new FormControl(this.data.euro),
+        dolar: new FormControl(this.data.dolar),
+        altin: new FormControl(this.data.altin),
+        hisse: this.fb.array([]),
+        lira: new FormControl(this.data.lira),
+        //hisseLot: new FormControl(''),
+        //hisseLot: this.fb.array([]),
+      });
+    } else {
+      this.form = this.fb.group({
+        euro: new FormControl(''),
+        dolar: new FormControl(''),
+        altin: new FormControl(''),
+        hisse: this.fb.array([]),
+        lira: new FormControl(''),
+        //hisseLot: new FormControl(''),
+        //hisseLot: this.fb.array([]),
+      });
+    }
+
   }
 
   hisse(): FormArray {
@@ -81,8 +96,8 @@ export class NewPortfolioComponent {
 
   addHisse() {
     const hisse = this.fb.group({
-      hisseSymbol: new FormControl(this.data.hisse),
-      hisseLot: new FormControl(this.data.hisseLot),
+      hisseSymbol: new FormControl(''),
+      hisseLot: new FormControl(''),
     });
     this.hisse().push(hisse);
   }
@@ -113,16 +128,12 @@ export class NewPortfolioComponent {
       hisseLot: lotArr,
     };
 
-    console.log('DATA', this.data);
-    if (this.data[0] == null || this.data[0] == undefined) {
-      console.log('DATA', this.data);
-      console.log('Body', body);
+    if (this.data == null || this.data == undefined) {
       // Portfolio Oluşturma
       this.portfolioService.createPortfolio(body).subscribe(
         (res) => {
           console.log();
           if (res) {
-            console.log('RES', res);
             this.dialogRef.close('success');
           }
         },

@@ -167,12 +167,11 @@ export class PortfolioComponent implements OnInit {
 
   // Portfolyo Güncelleme
   updatePortfolio(data:any){
-    console.log('FF', data);
       const dialogRef = this.dialog.open(NewPortfolioComponent, {
         width: '380px',
         height: '100%',
         // disableClose: true,
-        data: data ,
+        data: data,
       });
       dialogRef.afterClosed().subscribe((res) => {
         if(res == "success"){

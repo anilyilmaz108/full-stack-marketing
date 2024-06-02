@@ -58,6 +58,7 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
       (data) => {
         this.dataSource = new MatTableDataSource(data);
         this.dataSource.paginator = this.paginator;
+        this.share = data;
         this.spinner.hide('follow');
       },
       (err) => {

@@ -43,7 +43,7 @@ export class NewsComponent implements OnInit {
     this.spinner.hide('news');
   }
 
-  titles = ['Piyasam Haberler'];
+  titles = ['Piyasa Haberleri'];
 
   // Typewritter effect
   typedText$ = this.typewriterService
