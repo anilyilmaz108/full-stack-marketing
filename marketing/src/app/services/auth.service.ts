@@ -5,7 +5,6 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { UserModel } from '../models/user.model';
 //import { LocalStorageService } from './local-storage.service';
-import { jwtDecode } from "jwt-decode";
 
 @Injectable({
   providedIn: 'root',
@@ -21,13 +20,9 @@ export class AuthService {
 
   constructor() {
     const token = localStorage.getItem('currentUser');
-    console.log('TOKEN', token);
     this.userInfo = this.setUserInfo(token);
-    console.log('USER INFO', this.userInfo);
     this.userSubject = new BehaviorSubject<any>(this.userInfo);
-    console.log('USER SUBJ', this.userSubject);
     this.user = this.userSubject.asObservable();
-    console.log('USER ___', this.user);
   }
 
   // User Bilgileri
@@ -40,10 +35,9 @@ export class AuthService {
     return this.httpClient.post(`${api}/login`, data).pipe(
       map((res:any) => {
         //localStorage.removeItem('currentUser');
+        localStorage.setItem('currentUser', `${JSON.stringify(res)}`);
         this.userInfo = this.setUserInfo(res);
         this.userSubject.next(this.userInfo);
-        localStorage.setItem('currentUser', `${JSON.stringify(res)}`);
-        console.log('VERİLEN TOKEN', localStorage.getItem('currentUser'));
         this.router.navigateByUrl('/');
         return res;
       })
@@ -87,8 +81,6 @@ export class AuthService {
 
 setUserInfo(token: any) {
   token = localStorage.getItem('currentUser');
-  console.log('122', JSON.stringify(token));
-  console.log('123', JSON.parse(token));
   const payload = JSON.parse(token);
   if(token != null) {   
     const id = Number(payload.id); 
