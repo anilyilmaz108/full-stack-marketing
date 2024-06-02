@@ -1107,7 +1107,7 @@ router.get("/health", cors(corsOptions), async (req, res) => {
   // #swagger.description = 'Veriler DBye kayıt edilmez. Client tarafında search işlemleri için kullanılır.'
 });
 
-//Nodemailer
+// Nodemailer
 router.post("/sendmail", async (req, res) => {
   let user = req.body;
   try {

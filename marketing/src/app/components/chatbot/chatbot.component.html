@@ -1,0 +1,35 @@
+<div class="h-screen flex flex-col">
+    <div class="bg-gray-800 flex justify-center p-4">
+        <span class="text-white text-bold">Gemini AI</span>
+      </div>
+    <div class="bg-gray-100 flex-1 overflow-y-scroll">
+        <div *ngFor="let item of chatHistory" class="px-4 py-2">
+                <!--Gemini-->
+                <div *ngIf="item.from === 'bot'" class="flex items-center justify-start">
+                    <img class="w-8 h-8 rounded-full" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThr7qrIazsvZwJuw-uZCtLzIjaAyVW_ZrlEQ&s" alt="Gemini">
+                <div class="bg-white text-black rounded-lg p-2 shadow ml-2 max-w-sm">
+                   <span class="text-black" [innerHTML]="formatText(item.message)"></span>
+                </div>
+                </div>
+                <!--User-->
+                  <div *ngIf="item.from === 'user'" class="flex items-center justify-end">
+                <div class="bg-blue-500 text-white rounded-lg p-2 shadow mr-2 max-w-sm">
+                    <span [innerHTML]="formatText(item.message)"></span>
+                </div>
+                <img class="w-8 h-8 rounded-full" src="assets/images/blank-man.png" alt="Marketing User">
+            </div>
+        </div>
+        <div *ngIf="isLoading">
+            <app-skeleton></app-skeleton>
+        </div>
+
+    </div>
+    <div class="bg-gray-100 px-4 pb-16 pt-2">
+        <div class="flex items-center pb-2">
+            <input class="w-full border rounded-full py-2 px-4 mr-2" type="text" placeholder="Mesajınızı giriniz..." [(ngModel)]="prompt">
+            <button [disabled]="isLoading" (click)="sendData()" (keyup.enter)="sendData()" class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full">
+        Gönder
+      </button>
+        </div>
+    </div>
+</div>

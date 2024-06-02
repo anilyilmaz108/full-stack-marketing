@@ -14,6 +14,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { PublicComponent } from './layouts/public/public.component';
 import { AboutComponent } from './components/about/about.component';
 import { ContactComponent } from './components/contact/contact.component';
+import { ChatbotComponent } from './components/chatbot/chatbot.component';
 
 const routes: Routes = [
   {
@@ -52,6 +53,10 @@ const routes: Routes = [
       {
         path: 'contact',
         component: ContactComponent,
+      },
+      {
+        path: 'chat',
+        component: ChatbotComponent,
       },
     ],
   },
