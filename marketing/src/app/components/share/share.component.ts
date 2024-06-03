@@ -17,6 +17,7 @@ import { ErrorService } from 'src/app/services/error.service';
 import { ShareService } from 'src/app/services/share.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SuccessService } from 'src/app/services/success.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-share',
@@ -44,7 +45,7 @@ export class ShareComponent implements AfterViewInit {
     'fark',
     'status',
     'info',
-    'fav'
+    'fav',
   ];
   subscription!: Subscription;
   user: any;
@@ -84,10 +85,10 @@ export class ShareComponent implements AfterViewInit {
     }
   }
 
-  // Düşük Fiyat: ${data.dusukFiyat} \n 
-  // Son Fiyat ${data.sonFiyat} \n 
-  // Satış Fiyat: ${data.satisFiyat} \n 
-  tooltipContent(data:any){
+  // Düşük Fiyat: ${data.dusukFiyat} \n
+  // Son Fiyat ${data.sonFiyat} \n
+  // Satış Fiyat: ${data.satisFiyat} \n
+  tooltipContent(data: any) {
     return `
     Hisse: ${data.hisseSembolu} \n 
     Fiyat: ${data.fiyat} \n 
@@ -104,20 +105,20 @@ export class ShareComponent implements AfterViewInit {
   }
 
   createFollow(data: any, userId: any, shareSymbol: any) {
-      var isFollow = true;
-      var hasFound = 0;
-      console.log(data.hisseSembolu);
-      console.log(this.follow);
-      
-      for (let index = 0; index < this.follow.length; index++) {
-        const element = this.follow[index];
-        if(element.hisse === data.hisseSembolu){
-          hasFound++;
-        }
+    var isFollow = true;
+    var hasFound = 0;
+    console.log(data.hisseSembolu);
+    console.log(this.follow);
+
+    for (let index = 0; index < this.follow.length; index++) {
+      const element = this.follow[index];
+      if (element.hisse === data.hisseSembolu) {
+        hasFound++;
       }
-      if(hasFound == 0) {
-        console.log('Listede yok');
-        this.shareService
+    }
+    if (hasFound == 0) {
+      console.log('Listede yok');
+      this.shareService
         .createFollow(userId, shareSymbol)
         .pipe(first())
         .subscribe(
@@ -130,19 +131,13 @@ export class ShareComponent implements AfterViewInit {
               // Kayıt başarılıysa
               this.successService.successHandler(203);
             }
-            
           },
           (err) => {
             // API'ye erişilemiyorsa...
             this.errorService.errorHandler(404);
           }
-        );  
-      }
-
-
-
-     
-    
+        );
+    }
   }
 
   getFollow(id: number) {
@@ -155,8 +150,17 @@ export class ShareComponent implements AfterViewInit {
         // API'ye erişilemiyorsa...
         this.errorService.errorHandler(2);
       }
-    )
+    );
   }
 
-  exportData(){}
+  // Excel'e veri aktarma
+  exportData() {
+    /* pass here the table id */
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.share);
+    /* generate workbook and add the worksheet */
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    /* save to file */
+    XLSX.writeFile(wb, 'Bist100.xlsx');
+  }
 }

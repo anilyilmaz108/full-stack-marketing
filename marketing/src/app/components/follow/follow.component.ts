@@ -1,16 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { initFlowbite } from 'flowbite';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Subscription} from 'rxjs';
+import { Subscription } from 'rxjs';
 import { SharedModule } from 'src/app/modules/shared.module';
 import { AuthService } from 'src/app/services/auth.service';
 import { ErrorService } from 'src/app/services/error.service';
 import { ShareService } from 'src/app/services/share.service';
 import { SuccessService } from 'src/app/services/success.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-follow',
@@ -40,7 +48,7 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
     'fark',
     'status',
     'info',
-    'del'
+    'del',
   ];
   subscription!: Subscription;
 
@@ -54,18 +62,20 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
     var currentUser = this.authService.userValues();
     initFlowbite();
     this.spinner.show('follow');
-    this.subscription = this.shareService.getFollowList(currentUser.id!).subscribe(
-      (data) => {
-        this.dataSource = new MatTableDataSource(data);
-        this.dataSource.paginator = this.paginator;
-        this.share = data;
-        this.spinner.hide('follow');
-      },
-      (err) => {
-        // API'ye erişilemiyorsa...
-        this.errorService.errorHandler(2);
-      }
-    );
+    this.subscription = this.shareService
+      .getFollowList(currentUser.id!)
+      .subscribe(
+        (data) => {
+          this.dataSource = new MatTableDataSource(data);
+          this.dataSource.paginator = this.paginator;
+          this.share = data;
+          this.spinner.hide('follow');
+        },
+        (err) => {
+          // API'ye erişilemiyorsa...
+          this.errorService.errorHandler(2);
+        }
+      );
   }
 
   applyFilter(event: Event) {
@@ -77,10 +87,10 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // Düşük Fiyat: ${data.dusukFiyat} \n 
-  // Son Fiyat ${data.sonFiyat} \n 
-  // Satış Fiyat: ${data.satisFiyat} \n 
-  tooltipContent(data:any){
+  // Düşük Fiyat: ${data.dusukFiyat} \n
+  // Son Fiyat ${data.sonFiyat} \n
+  // Satış Fiyat: ${data.satisFiyat} \n
+  tooltipContent(data: any) {
     return `
     Hisse: ${data.hisse} \n 
     Fiyat: ${data.fiyat} \n 
@@ -99,8 +109,10 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
   deleteFollow(shareSymbol: any) {
     this.shareService.deleteFollow(this.userID, shareSymbol).subscribe(
       (res) => {
-          this.successService.successHandler(204);
-          this.subscription = this.shareService.getFollowList(this.userID).subscribe(
+        this.successService.successHandler(204);
+        this.subscription = this.shareService
+          .getFollowList(this.userID)
+          .subscribe(
             (data) => {
               this.dataSource = new MatTableDataSource(data);
               this.dataSource.paginator = this.paginator;
@@ -110,7 +122,6 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
               this.errorService.errorHandler(2);
             }
           );
-        
       },
       (err) => {
         this.errorService.errorHandler(404);
@@ -118,7 +129,16 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  exportData(){}
+  // Excel'e veri aktarma
+  exportData() {
+    /* pass here the table id */
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.share);
+    /* generate workbook and add the worksheet */
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    /* save to file */
+    XLSX.writeFile(wb, 'Takip_Listem.xlsx');
+  }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
