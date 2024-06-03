@@ -15,6 +15,7 @@ import { PublicComponent } from './layouts/public/public.component';
 import { AboutComponent } from './components/about/about.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { ChatbotComponent } from './components/chatbot/chatbot.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 const routes: Routes = [
   {
@@ -73,7 +74,8 @@ const routes: Routes = [
         component: RegisterComponent,
       },
     ],
-  }
+  },
+  {path: '**', component: NotFoundComponent}
 ];
 
 @NgModule({
