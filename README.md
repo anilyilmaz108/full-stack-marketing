@@ -1,5 +1,12 @@
 # Marketing
 
+## Watch the Demo:
+[![Watch the Demo](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRc4uZgHRdpLZdtcaTJFNAMLP2ycgaOcY68Q&s)](https://youtu.be/sEBVp8sau3I)
+
+> Click on the picture to see the video of the project demo.
+
+--- 
+
 It is a Full-Stack Web application developed using Angular and Nodejs. Incoming data changes daily in the form of liveapi, and the requested data is kept in PostgreSQL DB and Cache.
 
 Conrainer was used and removed with Redis -> Docker. During the login process, personal data that comply with the validation procedures are kept with encryption in local storage. In this way, as long as you do not log out, you can operate from the page you left off when you close or refresh the site.
