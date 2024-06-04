@@ -663,92 +663,99 @@ router.put("/updatePortfolio/:user", cors(corsOptions), async (req, res) => {
 
 // BIST100 Verileri
 router.get("/bist100", cors(corsOptions), async (req, res) => {
-  bist100Data.splice(0, bist100Data.length);
-  axios
-    .get("https://bigpara.hurriyet.com.tr/borsa/canli-borsa/bist100/")
-    .then(async (response) => {
-      const html = response.data;
-      const $ = cheerio.load(html);
-      $("a", html).each(async function () {
-        if ($(this).attr("href").includes("/borsa/hisse-fiyatlari/")) {
-          const hisse = $(this).text();
-          if (!hisse.includes("Hisse") && !hisse.includes("HİSSE")) {
-            const hisseSembolu = hisse;
-            const sonFiyat = $(`li[id=h_td_alis_id_${hisse}]`, html).text();
-            const satisFiyat = $(`li[id=h_td_satis_id_${hisse}]`, html).text();
-            const fiyat = $(`li[id=h_td_fiyat_id_${hisse}]`, html).text();
-            const dusukFiyat = $(`li[id=h_td_dusuk_id_${hisse}]`, html).text();
-            const ortalama = $(`li[id=h_td_aort_id_${hisse}]`, html).text();
-            const yuzde = $(`li[id=h_td_yuzde_id_${hisse}]`, html).text();
-            const dunKapanis = $(
-              `li[id=h_td_dunkapanis_id_${hisse}]`,
-              html
-            ).text();
-            const fark = $(`li[id=h_td_farktl_id_${hisse}]`, html).text();
-            const taban = $(`li[id=h_td_taban_id_${hisse}]`, html).text();
-            const tavan = $(`li[id=h_td_tavan_id_${hisse}]`, html).text();
-            const hacimLot = $(`li[id=h_td_hacimlot_id_${hisse}]`, html).text();
-            const hacim = $(`li[id=h_td_hacimtl_id_${hisse}]`, html).text();
-            const saat = $(`li[id=h_td_saat_id_${hisse}]`, html)
-              .text()
-              .trim()
-              .toString();
-            bist100Data.push({
-              hisseSembolu,
-              sonFiyat,
-              satisFiyat,
-              fiyat,
-              dusukFiyat,
-              ortalama,
-              yuzde,
-              dunKapanis,
-              fark,
-              taban,
-              tavan,
-              hacimLot,
-              hacim,
-              saat,
-            });
-            var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
-            console.log(datetime);
-            // Veri Tabanına Günde 1 kez kayıt edilsin.
-            if (datetime.getHours() == 19 && datetime.getMinutes() == 0) {
-              try {
-                const shareData = await Share.create(
-                  {
-                    hisse,
-                    sonFiyat,
-                    satisFiyat,
-                    fiyat,
-                    dusukFiyat,
-                    ortalama,
-                    yuzde,
-                    dunKapanis,
-                    fark,
-                    taban,
-                    tavan,
-                    hacimLot,
-                    hacim,
-                    saat,
-                  },
-                  { logging: true }
-                );
-                logger.logInfo(
-                  `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
-                );
-              } catch (error) {
-                logger.logError(
-                  `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
-                );
-                console.log("err", error);
-              }
+  try{
+    bist100Data.splice(0, bist100Data.length);
+    axios
+      .get("https://bigpara.hurriyet.com.tr/borsa/canli-borsa/bist100/")
+      .then(async (response) => {
+        const html = response.data;
+        const $ = cheerio.load(html);
+        $("a", html).each(async function () {
+          if ($(this).attr("href").includes("/borsa/hisse-fiyatlari/")) {
+            const hisse = $(this).text();
+            if (!hisse.includes("Hisse") && !hisse.includes("HİSSE")) {
+              const hisseSembolu = hisse;
+              const sonFiyat = $(`li[id=h_td_alis_id_${hisse}]`, html).text();
+              const satisFiyat = $(`li[id=h_td_satis_id_${hisse}]`, html).text();
+              const fiyat = $(`li[id=h_td_fiyat_id_${hisse}]`, html).text();
+              const dusukFiyat = $(`li[id=h_td_dusuk_id_${hisse}]`, html).text();
+              const ortalama = $(`li[id=h_td_aort_id_${hisse}]`, html).text();
+              const yuzde = $(`li[id=h_td_yuzde_id_${hisse}]`, html).text();
+              const dunKapanis = $(
+                `li[id=h_td_dunkapanis_id_${hisse}]`,
+                html
+              ).text();
+              const fark = $(`li[id=h_td_farktl_id_${hisse}]`, html).text();
+              const taban = $(`li[id=h_td_taban_id_${hisse}]`, html).text();
+              const tavan = $(`li[id=h_td_tavan_id_${hisse}]`, html).text();
+              const hacimLot = $(`li[id=h_td_hacimlot_id_${hisse}]`, html).text();
+              const hacim = $(`li[id=h_td_hacimtl_id_${hisse}]`, html).text();
+              const saat = $(`li[id=h_td_saat_id_${hisse}]`, html)
+                .text()
+                .trim()
+                .toString();
+              bist100Data.push({
+                hisseSembolu,
+                sonFiyat,
+                satisFiyat,
+                fiyat,
+                dusukFiyat,
+                ortalama,
+                yuzde,
+                dunKapanis,
+                fark,
+                taban,
+                tavan,
+                hacimLot,
+                hacim,
+                saat,
+              });
+           /**   var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
+              console.log(datetime);
+              // Veri Tabanına Günde 1 kez kayıt edilsin.
+              if (datetime.getHours() == 19 && datetime.getMinutes() == 0) {
+                try {
+                  const shareData = await Share.create(
+                    {
+                      hisse,
+                      sonFiyat,
+                      satisFiyat,
+                      fiyat,
+                      dusukFiyat,
+                      ortalama,
+                      yuzde,
+                      dunKapanis,
+                      fark,
+                      taban,
+                      tavan,
+                      hacimLot,
+                      hacim,
+                      saat,
+                    },
+                    { logging: true }
+                  );
+                  logger.logInfo(
+                    `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
+                  );
+                } catch (error) {
+                  logger.logError(
+                    `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `
+                  );
+                  console.log("err", error);
+                }
+              } */
             }
           }
-        }
-      });
-      res.status(200).json(bist100Data);
-    })
-    .catch((err) => console.log(err));
+        });
+        res.status(200).json(bist100Data);
+      })
+  } catch (error) {
+      console.log('err', error)
+      logger.logError(`${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı hata alındı hata bilgileri ${error} `)
+      res.status(500).json({ message: 'Hata Gerçekleşti '})
+  }
+
+
   // #swagger.tags = ['Bist']
   // #swagger.summary = 'Günlük Bist Verileri'
   // #swagger.description = 'Veriler DBye 19:00da kaydedilir.'
@@ -814,7 +821,8 @@ router.get("/bist100/:share", cors(corsOptions), async (req, res) => {
 router.get("/market/:marketId", cors(corsOptions), async (req, res) => {
   const { marketId } = req.params;
   market.splice(0, market.length);
-  axios
+  try {
+    axios
     .get("https://bigpara.hurriyet.com.tr/borsa/hisse-senetleri/")
     .then(async (response) => {
       const html = response.data;
@@ -898,7 +906,7 @@ router.get("/market/:marketId", cors(corsOptions), async (req, res) => {
       }
 
       res.status(200).json(market);
-      var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
+/**      var datetime = new Date(); //new Date().setHours(new Date().getHours() + 3) => Sunucu Tarih Ayarı için bir sorun olursa
       // Veri Tabanına Günde 1 kez kayıt edilsin.
       if (datetime.getHours() == 19 && datetime.getMinutes() == 0) {
         console.log("DB Market Kayıt");
@@ -944,9 +952,11 @@ router.get("/market/:marketId", cors(corsOptions), async (req, res) => {
           );
           console.log("err", error);
         }
-      }
+      } */
     })
-    .catch((err) => console.log(err));
+  } catch(error) {
+    console.log(error);
+  }
   // #swagger.tags = ['Market']
   // #swagger.summary = 'Günlük Bist, Dolar, Euro ve Altın Verileri'
   // #swagger.description = 'Veriler DBye 19:00da kaydedilir.'
@@ -1112,7 +1122,7 @@ router.post("/sendmail", async (req, res) => {
   let user = req.body;
   try {
     sendMail(user, (info) => {
-      console.log(`The mail has beed send 😃 and the id is ${info.messageId}`);
+      //console.log(`The mail has beed send 😃 and the id is ${info.messageId}`);
       logger.logInfo(
         `${req.ip} den ilgili endpointe  ${req.path} erişim sağlandı `
       );
@@ -1164,14 +1174,14 @@ async function sendMail(user, callback) {
 // Redis'e Bağlanma
 const connectRedis = async () => {
   await client.connect();
-  console.log("Redise Bağlanıldı.");
+  //console.log("Redise Bağlanıldı.");
 };
 
 connectRedis().then(() => {
   app.listen(PORT, async () => {
     await db.connect();
     // db.createTables()
-    console.log("Server running...");
+    //console.log("Server running...");
     // Üretilen Token
     console.log(constants.token);
   });

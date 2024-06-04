@@ -27,7 +27,7 @@ export class ChatbotComponent {
       if(res) {
         this.isLoading = true;
         this.chatHistory.push(res);
-        console.log(res.message.length);
+        //console.log(res.message.length);
         if(res.from === 'bot' && res.message.length > 0){
           this.isLoading = false;
         }

@@ -47,7 +47,7 @@ export class NewProfileComponent {
       "email": rawForm.email,
       "password": rawForm.password
     };
-    console.log(this.user);
+    //console.log(this.user);
       this.authService.updateUser(this.user.id, body).subscribe(
         (res) => {
           this.dialogRef.close('success');

@@ -348,7 +348,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                       Number(this.share[0].fiyat) *
                         Number(item[0].hisseLot![index])
                     );
-                    console.log(this.share[index].hisse);
+                    //console.log(this.share[index].hisse);
                   }, 2000);
                 },
                 complete: () => {
@@ -362,8 +362,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         },
         complete: () => {
           setTimeout(() => {
-            console.log(this.shareArr);
-            console.log(this.shareLotArr);
+            //console.log(this.shareArr);
+            //console.log(this.shareLotArr);
             this.isChartLoading = true;
             this.spinner.hide('home');
           }, 3000);

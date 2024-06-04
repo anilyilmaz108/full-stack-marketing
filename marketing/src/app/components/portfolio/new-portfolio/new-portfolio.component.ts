@@ -132,7 +132,6 @@ export class NewPortfolioComponent {
       // Portfolio Oluşturma
       this.portfolioService.createPortfolio(body).subscribe(
         (res) => {
-          console.log();
           if (res) {
             this.dialogRef.close('success');
           }

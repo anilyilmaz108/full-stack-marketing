@@ -27,7 +27,7 @@ import * as XLSX from 'xlsx';
   styleUrl: './share.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShareComponent implements AfterViewInit {
+export class ShareComponent implements AfterViewInit { 
   shareService = inject(ShareService);
   errorService = inject(ErrorService);
   successService = inject(SuccessService);
@@ -107,8 +107,8 @@ export class ShareComponent implements AfterViewInit {
   createFollow(data: any, userId: any, shareSymbol: any) {
     var isFollow = true;
     var hasFound = 0;
-    console.log(data.hisseSembolu);
-    console.log(this.follow);
+    //console.log(data.hisseSembolu);
+    //console.log(this.follow);
 
     for (let index = 0; index < this.follow.length; index++) {
       const element = this.follow[index];
@@ -117,13 +117,12 @@ export class ShareComponent implements AfterViewInit {
       }
     }
     if (hasFound == 0) {
-      console.log('Listede yok');
       this.shareService
         .createFollow(userId, shareSymbol)
         .pipe(first())
         .subscribe(
           (res) => {
-            console.log(res);
+            //console.log(res);
             if (res == null) {
               // Bilgiler hatalıysa
               this.errorService.errorHandler(2);
@@ -144,7 +143,7 @@ export class ShareComponent implements AfterViewInit {
     return this.shareService.getFollowList(id).subscribe(
       (data) => {
         this.follow = data;
-        console.log(data);
+        //console.log(data);
       },
       (err) => {
         // API'ye erişilemiyorsa...

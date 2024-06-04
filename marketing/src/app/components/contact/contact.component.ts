@@ -50,7 +50,7 @@ export class ContactComponent {
       .subscribe(
         (res) => {
           // Form gönderilmişse...
-          console.log(res);
+          //console.log(res);
           if(res == "success") {
             this.successService.successHandler(205);
             this.form.reset();

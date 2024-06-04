@@ -49,7 +49,7 @@ export class LoginComponent {
       .pipe(first())
       .subscribe(
         (res) => {
-          console.log(res);
+          //console.log(res);
           if (res == null) {
             // Bilgiler hatalıysa
             this.errorService.errorHandler(0);
