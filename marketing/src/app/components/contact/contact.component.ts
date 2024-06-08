@@ -51,7 +51,7 @@ export class ContactComponent {
         (res) => {
           // Form gönderilmişse...
           //console.log(res);
-          if(res == "success") {
+          if(!res) {
             this.successService.successHandler(205);
             this.form.reset();
           } else {

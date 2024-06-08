@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { SharedModule } from './modules/shared.module';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { PrivateComponent } from './layouts/private/private.component';
 import { FooterComponent } from './layouts/private/footer/footer.component';
@@ -16,6 +16,8 @@ import { NgApexchartsModule } from "ng-apexcharts";
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PublicComponent } from './layouts/public/public.component';
+import { JwtInterceptor } from './helpers/jwt.interceptor';
+import { ErrorInterceptor } from './helpers/error.interceptor';
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient);
@@ -54,7 +56,12 @@ interface NgxSpinnerConfig {
     })
   ],
   providers: [
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    { provide: HTTP_INTERCEPTORS, 
+      useClass: JwtInterceptor, 
+      multi: true 
+    },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })

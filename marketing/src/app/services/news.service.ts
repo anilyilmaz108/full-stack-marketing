@@ -12,26 +12,26 @@ export class NewsService {
 
   // Haber Verileri
   getNews() {
-    return this.httpClient.get<NewsModel[]>(api + '/news');
+    return this.httpClient.get<NewsModel[]>(api + '/news/economy/true');
   }
 
   // Finans Verileri
   getFinance() {
-    return this.httpClient.get<NewsModel[]>(api + '/finance');
+    return this.httpClient.get<NewsModel[]>(api + '/news/finance/true');
   }
 
   // Teknoloji Verileri
   getTech() {
-    return this.httpClient.get<NewsModel[]>(api + '/tech');
+    return this.httpClient.get<NewsModel[]>(api + '/news/tech/true');
   }
 
   // Kültür-Sanat Verileri
   getCulture() {
-    return this.httpClient.get<NewsModel[]>(api + '/culture');
+    return this.httpClient.get<NewsModel[]>(api + '/news/culture/true');
   }
 
     // Sağlık Verileri
     getHealth() {
-      return this.httpClient.get<NewsModel[]>(api + '/health');
+      return this.httpClient.get<NewsModel[]>(api + '/news/health/true');
     }
 }

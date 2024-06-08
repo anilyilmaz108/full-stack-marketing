@@ -60,6 +60,7 @@ export class ShareComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     initFlowbite();
     var currentUser = this.authService.userValues();
+    console.log(currentUser);
     this.getFollow(currentUser.id!);
     this.spinner.show('share');
     this.subscription = this.shareService.getShare().subscribe(

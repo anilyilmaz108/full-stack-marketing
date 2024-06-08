@@ -10,6 +10,6 @@ export class ContactService {
   constructor() {}
 
   sendEmail(data:any) {
-    return this.httpClient.post(`${api}/sendmail`, data);
+    return this.httpClient.post(`${api}/user/sendmail`, data);
   }
 }

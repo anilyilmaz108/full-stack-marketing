@@ -66,6 +66,7 @@ export class FollowComponent implements AfterViewInit, OnDestroy {
       .getFollowList(currentUser.id!)
       .subscribe(
         (data) => {
+          console.log(data);
           this.dataSource = new MatTableDataSource(data);
           this.dataSource.paginator = this.paginator;
           this.share = data;

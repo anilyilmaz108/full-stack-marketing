@@ -15,18 +15,18 @@ export class MarketService {
 
   // Bist Verileri ==1
   getBist(id: number) {
-    return this.httpClient.get<BistModel[]>(api + '/market/' + id);
+    return this.httpClient.get<BistModel[]>(api + '/market/marketData/' + id);
   }
   // Dolar Verileri ==2
   getDolar(id: number) {
-    return this.httpClient.get<DolarModel[]>(api + '/market/' + id);
+    return this.httpClient.get<DolarModel[]>(api + '/market/marketData/' + id);
   }
   // Euro Verileri ==3
   getEuro(id: number) {
-    return this.httpClient.get<EuroModel[]>(api + '/market/' + id);
+    return this.httpClient.get<EuroModel[]>(api + '/market/marketData/' + id);
   }
   // Altın Verileri ==4
   getAltin(id: number) {
-    return this.httpClient.get<AltinModel[]>(api + '/market/' + id);
+    return this.httpClient.get<AltinModel[]>(api + '/market/marketData/' + id);
   }
 }

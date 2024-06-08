@@ -317,12 +317,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (item) => {
           this.portfolio = item;
+          console.log('Potfolio', this.portfolio);
           this.isLoading = true;
           this.isChartLoading = false;
           if(item == null) {
             this.spinner.hide('home');
           } else {
-                this.temp.push(Number(item[0].dolar) * this.usd);
+          this.temp.push(Number(item[0].dolar) * this.usd);
           this.tempLabel.push('USD');
           this.temp.push(Number(item[0].euro) * this.eur);
           this.tempLabel.push('EUR');
@@ -330,33 +331,29 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.tempLabel.push('XAU');
           this.temp.push(Number(item[0].lira));
           this.tempLabel.push('TL');
+          
           for (let index = 0; index < item[0].hisse!.length; index++) {
-            var hisse = item[0].hisse![index];
-            var lot = Number(item[0].hisseLot![index]);
-            this.searchDataBist(hisse)
-              .pipe(
-                first()
-              )
-              .subscribe({
-                next: (data) => {
-                  this.share = data;
-                  setTimeout(() => {
-                    this.shareArr.push(this.share[index].fiyat);
-                    this.shareLotArr.push(this.portfolio[0].hisseLot![index]);
-                    this.tempLabel.push(this.share[index].hisse);
-                    this.temp.push(
-                      Number(this.share[0].fiyat) *
-                        Number(item[0].hisseLot![index])
-                    );
-                    //console.log(this.share[index].hisse);
-                  }, 2000);
-                },
-                complete: () => {
-                  this.isLoading = false;
-                  //console.log(this.temp);
-                  //console.log(this.tempLabel);
-                },
-              });
+            const hisse = item[0].hisse![index];
+            const lot = item[0].hisseLot![index];
+            this.shareService.getShareById(hisse).subscribe({
+              next: (data) => {
+                this.share = data;
+                setTimeout(() => {
+                  this.shareArr.push(this.share[index].fiyat);
+                  this.shareLotArr.push(this.portfolio[0].hisseLot![index]);
+                  this.tempLabel.push(this.share[index].hisse);
+                  this.temp.push(
+                    Number(this.share[0].fiyat) *
+                      Number(item[0].hisseLot![index])
+                  );
+                  //console.log(this.share[index].hisse);
+                }, 2000);
+              },
+              complete: () => {
+                this.isLoading = false;
+              }
+            });
+
           }
           }
         },

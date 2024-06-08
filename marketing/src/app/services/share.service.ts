@@ -18,22 +18,22 @@ export class ShareService {
 
   // Bist100 Arama Verileri 
   getShareById(share: string) {
-    return this.httpClient.get<ShareModel>(api + '/bist100/' + share);
+    return this.httpClient.get<ShareModel>(api + '/market/bist/' + share);
   }
 
   // Bist100 Tüm Veriler
   getShare() {
-    return this.httpClient.get<any[]>(api + '/bist100');
+    return this.httpClient.get<any[]>(api + '/market/bist100/true');
   }
 
   // Takip Listesi Verileri
   getFollowList(userId: number) {
-    return this.httpClient.get<any>(api + '/getFollow/' + userId);
+    return this.httpClient.get<any>(api + '/follow/getFollow/' + userId);
   }
 
   // Takip Listesine Ekleme
   createFollow(userId: any, shareSymbol: any): Observable<any> {
-    return this.httpClient.post(`${api}/createFollow`, {"user" : userId, "shareSymbol" : shareSymbol}).pipe(
+    return this.httpClient.post(`${api}/follow/createFollow`, {"user" : userId, "shareSymbol" : shareSymbol}).pipe(
       map((res) => {
         this.shareSubject.next(res);
         return res;
@@ -43,6 +43,6 @@ export class ShareService {
 
   // Takip Listesinden Silme
   public deleteFollow(userId: any, shareSymbol: any): Observable<any> {
-    return this.httpClient.delete(api + '/deleteFollow/' + userId + '/' + shareSymbol);
+    return this.httpClient.delete(api + '/follow/deleteFollow/' + userId + '/' + shareSymbol);
   }
 }

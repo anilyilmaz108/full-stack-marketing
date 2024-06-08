@@ -19,12 +19,12 @@ export class PortfolioService {
 
   // Portfolio Verileri 
   getPortfolio(user: number) {
-    return this.httpClient.get<PortfolioModel[]>(api + '/getPortfolio/' + user);
+    return this.httpClient.get<PortfolioModel[]>(api + '/portfolio/getPortfolio/true/' + user);
   }
 
   // Portfolio Güncelleme
   updatePortfolio(user: any, data: any): Observable<any> {
-    return this.httpClient.put(api + '/updatePortfolio/' + user, data).pipe(
+    return this.httpClient.put(api + '/portfolio/updatePortfolio/true/' + user, data).pipe(
       map((res) => {
         this.shareSubject.next(res);
         return res;
@@ -34,7 +34,7 @@ export class PortfolioService {
 
   // Portfolio Oluşturma
   createPortfolio(data: any): Observable<any> {
-    return this.httpClient.post(`${api}/createPortfolio`, data).pipe(
+    return this.httpClient.post(`${api}/portfolio/createPortfolio/true`, data).pipe(
       map((res) => {
         this.shareSubject.next(res);
         return res;
