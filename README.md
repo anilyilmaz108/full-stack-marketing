@@ -79,6 +79,11 @@ node swagger.js
 
 -> Run this command for Nodejs.
 ```shell
+npm install
+```
+then, 
+
+```shell
 node index.js
 ```
 
@@ -95,7 +100,22 @@ ng s
 > [!NOTE]
 > Api Key, Token, Mail and DB information are in the .env file and are not available on GitHub.
 
+---
 
+## Fastify Branch (Optional)
+-  Jwt Token -> Data creates payload. This payload is used in the Frontend.
+-  Abstract Cache
+-  SQL instead of ORM
+
+-> Run this command for Nodejs.
+```shell
+npm install
+```
+then, 
+
+```shell
+npm start
+```
 
 ## Feedback
 
